@@ -293,10 +293,53 @@ export const getUserProfile = async (req, res) => {
   }
 };
 
+// export const updateProfile = async (req, res) => {
+//   try {
+//     const userId = req.id;
+//     const { name } = req.body;
+//     const profilePhoto = req.file;
+
+//     const user = await User.findById(userId);
+//     if (!user) {
+//       return res.status(404).json({
+//         message: "User not found",
+//         success: false,
+//       });
+//     }
+
+//     if (user.photoUrl) {
+//       const publicId = user.photoUrl.split("/").pop().split(".")[0];
+//       await deleteMediaFromCloudinary(publicId);
+//     }
+
+//     const cloudResponse = await uploadMedia(profilePhoto.path);
+//     const photoUrl = cloudResponse.secure_url;
+
+//     const updatedData = { name, photoUrl };
+//     const updatedUser = await User.findByIdAndUpdate(userId, updatedData, {
+//       new: true,
+//     }).select("-password");
+
+//     return res.status(200).json({
+//       success: true,
+//       user: updatedUser,
+//       message: "Profile updated successfully.",
+//     });
+//   } catch (error) {
+//     console.error(error);
+//     return res.status(500).json({
+//       success: false,
+//       message: "Failed to update profile",
+//     });
+//   }
+// };
+
+
+
 export const updateProfile = async (req, res) => {
   try {
     const userId = req.id;
-    const { name } = req.body;
+    const { name, skills, interests, experienceLevel } = req.body;
     const profilePhoto = req.file;
 
     const user = await User.findById(userId);
@@ -307,29 +350,61 @@ export const updateProfile = async (req, res) => {
       });
     }
 
-    if (user.photoUrl) {
-      const publicId = user.photoUrl.split("/").pop().split(".")[0];
-      await deleteMediaFromCloudinary(publicId);
+    // Prepare object for updates
+    const updatedData = {};
+
+    if (name) updatedData.name = name;
+
+    // ✅ Update skills & interests if provided
+    if (skills) {
+      // handle both comma-separated string or array
+      if (typeof skills === "string") {
+        updatedData.skills = skills.split(",").map((s) => s.trim());
+      } else if (Array.isArray(skills)) {
+        updatedData.skills = skills;
+      }
     }
 
-    const cloudResponse = await uploadMedia(profilePhoto.path);
-    const photoUrl = cloudResponse.secure_url;
+    if (interests) {
+      if (typeof interests === "string") {
+        updatedData.interests = interests.split(",").map((i) => i.trim());
+      } else if (Array.isArray(interests)) {
+        updatedData.interests = interests;
+      }
+    }
 
-    const updatedData = { name, photoUrl };
+    if (experienceLevel) {
+      updatedData.experienceLevel = experienceLevel;
+    }
+
+    // ✅ Profile Photo Handling
+    if (profilePhoto) {
+      // Delete old photo if exists
+      if (user.photoUrl) {
+        const publicId = user.photoUrl.split("/").pop().split(".")[0];
+        await deleteMediaFromCloudinary(publicId);
+      }
+
+      // Upload new photo to Cloudinary
+      const cloudResponse = await uploadMedia(profilePhoto.path);
+      updatedData.photoUrl = cloudResponse.secure_url;
+    }
+
+    // ✅ Update user in DB
     const updatedUser = await User.findByIdAndUpdate(userId, updatedData, {
       new: true,
     }).select("-password");
 
     return res.status(200).json({
       success: true,
-      user: updatedUser,
       message: "Profile updated successfully.",
+      user: updatedUser,
     });
   } catch (error) {
-    console.error(error);
+    console.error("Error updating profile:", error);
     return res.status(500).json({
       success: false,
-      message: "Failed to update profile",
+      message: "Failed to update profile.",
     });
   }
 };
