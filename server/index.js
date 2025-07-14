@@ -9,6 +9,7 @@ import mediaRoute from "./routes/media.route.js";
 import purchaseRoute from "./routes/purchaseCourse.route.js";
 import userRoute from "./routes/user.route.js";
 
+
 dotenv.config({});
 
 // call database connection here
