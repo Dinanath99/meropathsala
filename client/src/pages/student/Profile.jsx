@@ -1676,7 +1676,7 @@ const Profile = () => {
                     <div className="grid grid-cols-4 items-center gap-4">
                       <Label>Experience</Label>
                       <select
-                        className="border p-2 rounded col-span-3"
+                        className="border p-2 rounded col-span-3 bg-slate-600"
                         value={experienceLevel}
                         onChange={(e) => setExperienceLevel(e.target.value)}
                       >
@@ -1728,7 +1728,7 @@ const Profile = () => {
       {/* Recommended Courses */}
       {isStudent && (
         <div className="mt-10">
-          <h2 className="font-semibold text-xl mb-4">What to learn next based on your skills</h2>
+          <h2 className="font-semibold text-xl mb-4">What to learn next based on your skills and Interest</h2>
           {recommendationLoading ? (
             <p>Loading recommended courses...</p>
           ) : (
