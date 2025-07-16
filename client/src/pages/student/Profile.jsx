@@ -430,6 +430,783 @@
 
 
 
+// import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+// import { Button } from "@/components/ui/button";
+// import {
+//   Dialog,
+//   DialogContent,
+//   DialogDescription,
+//   DialogFooter,
+//   DialogHeader,
+//   DialogTitle,
+//   DialogTrigger,
+// } from "@/components/ui/dialog";
+// import { Input } from "@/components/ui/input";
+// import { Label } from "@/components/ui/label";
+// import {
+//   useLoadUserQuery,
+//   useUpdateUserMutation,
+// } from "@/features/api/authApi";
+// import { useGetRecommendedCoursesQuery } from "@/features/api/courseApi";
+// import { Loader2 } from "lucide-react";
+// import { useEffect, useState } from "react";
+// import { toast } from "sonner";
+// import Course from "./Course";
+
+// const Profile = () => {
+//   const [name, setName] = useState("");
+//   const [profilePhoto, setProfilePhoto] = useState("");
+//   const [skills, setSkills] = useState([]);
+//   const [interests, setInterests] = useState([]);
+//   const [experienceLevel, setExperienceLevel] = useState("beginner");
+
+//   const { data, isLoading, refetch } = useLoadUserQuery();
+//   const {  data:recommendedCourses } = useGetRecommendedCoursesQuery();
+
+// console.log("recommendation course",recommendedCourses)
+//   const [
+//     updateUser,
+//     {
+//       data: updateUserData,
+//       isLoading: updateUserIsLoading,
+//       isError,
+//       error,
+//       isSuccess,
+//     },
+//   ] = useUpdateUserMutation();
+
+//   const onChangeHandler = (e) => {
+//     const file = e.target.files?.[0];
+//     if (file) setProfilePhoto(file);
+//   };
+
+//   const updateUserHandler = async () => {
+//     const formData = new FormData();
+//     formData.append("name", name);
+//     if (profilePhoto) {
+//       formData.append("profilePhoto", profilePhoto);
+//     }
+//     skills.forEach((skill) => formData.append("skills[]", skill));
+//     interests.forEach((interest) => formData.append("interests[]", interest));
+//     formData.append("experienceLevel", experienceLevel);
+//     await updateUser(formData);
+//   };
+
+//   useEffect(() => {
+//     refetch();
+//   }, []);
+
+//   useEffect(() => {
+//     if (data?.user) {
+//       setName(data.user.name || "");
+//       setSkills(data.user.skills || []);
+//       setInterests(data.user.interests || []);
+//       setExperienceLevel(data.user.experienceLevel || "beginner");
+//     }
+//   }, [data]);
+
+//   useEffect(() => {
+//     if (isSuccess) {
+//       refetch();
+//       toast.success("Profile updated.");
+//     }
+//     if (isError) {
+//       toast.error(error?.message || "Failed to update profile");
+//     }
+//   }, [error, updateUserData, isSuccess, isError]);
+
+//   if (isLoading) return <h1>Loading profile...</h1>;
+
+//   const user = data && data.user;
+
+//   return (
+//     <div className="max-w-4xl mx-auto px-4 my-10">
+//       <h1 className="font-bold text-2xl text-center md:text-left">PROFILE</h1>
+//       <div className="flex flex-col md:flex-row items-center md:items-start gap-8 my-5">
+//         <div className="flex flex-col items-center">
+//           <Avatar className="h-24 w-24 md:h-32 md:w-32 mb-4">
+//             <AvatarImage
+//               src={user?.photoUrl || "https://github.com/shadcn.png"}
+//               alt="@shadcn"
+//             />
+//             <AvatarFallback>CN</AvatarFallback>
+//           </Avatar>
+//         </div>
+//         <div>
+//           <div className="mb-2 font-semibold">
+//             Name:
+//             <span className="font-normal ml-2">{user.name}</span>
+//           </div>
+//           <div className="mb-2 font-semibold">
+//             Email:
+//             <span className="font-normal ml-2">{user.email}</span>
+//           </div>
+//           <div className="mb-2 font-semibold">
+//             Role:
+//             <span className="font-normal ml-2">{user.role.toUpperCase()}</span>
+//           </div>
+//           <div className="mb-2 font-semibold">
+//             Experience Level:
+//             <span className="font-normal ml-2">{user.experienceLevel}</span>
+//           </div>
+//           <div className="mb-2 font-semibold">
+//             Skills:
+//             <span className="font-normal ml-2">
+//               {user.skills?.join(", ") || "None"}
+//             </span>
+//           </div>
+//           <div className="mb-2 font-semibold">
+//             Interests:
+//             <span className="font-normal ml-2">
+//               {user.interests?.join(", ") || "None"}
+//             </span>
+//           </div>
+
+//           <Dialog>
+//             <DialogTrigger asChild>
+//               <Button size="sm" className="mt-3">
+//                 Edit Profile
+//               </Button>
+//             </DialogTrigger>
+//             <DialogContent>
+//               <DialogHeader>
+//                 <DialogTitle>Edit Profile</DialogTitle>
+//                 <DialogDescription>
+//                   Update your details below.
+//                 </DialogDescription>
+//               </DialogHeader>
+//               <div className="grid gap-4 py-4">
+//                 <div className="grid grid-cols-4 items-center gap-4">
+//                   <Label>Name</Label>
+//                   <Input
+//                     type="text"
+//                     value={name}
+//                     onChange={(e) => setName(e.target.value)}
+//                     placeholder="Name"
+//                     className="col-span-3"
+//                   />
+//                 </div>
+//                 <div className="grid grid-cols-4 items-center gap-4">
+//                   <Label>Profile Photo</Label>
+//                   <Input
+//                     onChange={onChangeHandler}
+//                     type="file"
+//                     accept="image/*"
+//                     className="col-span-3"
+//                   />
+//                 </div>
+//                 <div className="grid grid-cols-4 items-center gap-4">
+//                   <Label>Skills</Label>
+//                   <Input
+//                     value={skills.join(", ")}
+//                     onChange={(e) =>
+//                       setSkills(e.target.value.split(",").map((s) => s.trim()))
+//                     }
+//                     className="col-span-3"
+//                   />
+//                 </div>
+//                 <div className="grid grid-cols-4 items-center gap-4">
+//                   <Label>Interests</Label>
+//                   <Input
+//                     value={interests.join(", ")}
+//                     onChange={(e) =>
+//                       setInterests(
+//                         e.target.value.split(",").map((s) => s.trim())
+//                       )
+//                     }
+//                     className="col-span-3"
+//                   />
+//                 </div>
+//                 <div className="grid grid-cols-4 items-center gap-4">
+//                   <Label>Experience</Label>
+//                   <select
+//                     className="border p-2 rounded col-span-3"
+//                     value={experienceLevel}
+//                     onChange={(e) => setExperienceLevel(e.target.value)}
+//                   >
+//                     <option value="beginner">Beginner</option>
+//                     <option value="intermediate">Intermediate</option>
+//                     <option value="advanced">Advanced</option>
+//                   </select>
+//                 </div>
+//               </div>
+//               <DialogFooter>
+//                 <Button
+//                   disabled={updateUserIsLoading}
+//                   onClick={updateUserHandler}
+//                 >
+//                   {updateUserIsLoading ? (
+//                     <>
+//                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />{" "}
+//                       Saving...
+//                     </>
+//                   ) : (
+//                     "Save Changes"
+//                   )}
+//                 </Button>
+//               </DialogFooter>
+//             </DialogContent>
+//           </Dialog>
+//         </div>
+//       </div>
+
+//       <div className="mt-10">
+//         <h2 className="font-semibold text-xl mb-4">
+//           Courses You're Enrolled In
+//         </h2>
+//         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+//           {user.enrolledCourses.length === 0 ? (
+//             <h1>You haven't enrolled yet</h1>
+//           ) : (
+//             user.enrolledCourses.map((course) => (
+//               <Course course={course} key={course._id} />
+//             ))
+//           )}
+//         </div>
+//       </div>
+
+//       <div className="mt-10">
+//         <h2 className="font-semibold text-xl mb-4">Recommended Courses</h2>
+//         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+//           {recommendedCourses?.courses?.length > 0 ? (
+//             recommendedCourses.courses.map((course) => (
+//               <Course course={course} key={course._id} />
+//             ))
+//           ) : (
+//             <p>No recommendations yet. Try adding skills & interests.</p>
+//           )}
+//         </div>
+//       </div>
+//     </div>
+//   );
+// };
+
+// export default Profile;
+
+
+// import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+// import { Button } from "@/components/ui/button";
+// import {
+//   Dialog,
+//   DialogContent,
+//   DialogDescription,
+//   DialogFooter,
+//   DialogHeader,
+//   DialogTitle,
+//   DialogTrigger,
+// } from "@/components/ui/dialog";
+// import { Input } from "@/components/ui/input";
+// import { Label } from "@/components/ui/label";
+// import {
+//   useLoadUserQuery,
+//   useUpdateUserMutation,
+// } from "@/features/api/authApi";
+// import { useGetRecommendedCoursesQuery } from "@/features/api/courseApi";
+// import { Loader2 } from "lucide-react";
+// import { useEffect, useState } from "react";
+// import { toast } from "sonner";
+// import Course from "./Course";
+
+// const Profile = () => {
+//   const [name, setName] = useState("");
+//   const [profilePhoto, setProfilePhoto] = useState("");
+//   const [skills, setSkills] = useState([]);
+//   const [interests, setInterests] = useState([]);
+//   const [experienceLevel, setExperienceLevel] = useState("beginner");
+
+//   const { data, isLoading, refetch } = useLoadUserQuery();
+//   const {
+//     data: recommendationData,
+//     isLoading: recommendationLoading,
+//   } = useGetRecommendedCoursesQuery();
+
+//   const recommendedCourses = recommendationData?.recommendedCourses || [];
+
+//   const [
+//     updateUser,
+//     {
+//       data: updateUserData,
+//       isLoading: updateUserIsLoading,
+//       isError,
+//       error,
+//       isSuccess,
+//     },
+//   ] = useUpdateUserMutation();
+
+//   const onChangeHandler = (e) => {
+//     const file = e.target.files?.[0];
+//     if (file) setProfilePhoto(file);
+//   };
+
+//   const updateUserHandler = async () => {
+//     const formData = new FormData();
+//     formData.append("name", name);
+//     if (profilePhoto) {
+//       formData.append("profilePhoto", profilePhoto);
+//     }
+//     skills.forEach((skill) => formData.append("skills[]", skill));
+//     interests.forEach((interest) => formData.append("interests[]", interest));
+//     formData.append("experienceLevel", experienceLevel);
+//     await updateUser(formData);
+//   };
+
+//   useEffect(() => {
+//     refetch();
+//   }, []);
+
+//   useEffect(() => {
+//     if (data?.user) {
+//       setName(data.user.name || "");
+//       setSkills(data.user.skills || []);
+//       setInterests(data.user.interests || []);
+//       setExperienceLevel(data.user.experienceLevel || "beginner");
+//     }
+//   }, [data]);
+
+//   useEffect(() => {
+//     if (isSuccess) {
+//       refetch();
+//       toast.success("Profile updated.");
+//     }
+//     if (isError) {
+//       toast.error(error?.message || "Failed to update profile");
+//     }
+//   }, [error, updateUserData, isSuccess, isError]);
+
+//   if (isLoading) return <h1>Loading profile...</h1>;
+
+//   const user = data && data.user;
+
+//   return (
+//     <div className="max-w-4xl mx-auto px-4 my-10">
+//       <h1 className="font-bold text-2xl text-center md:text-left">PROFILE</h1>
+//       <div className="flex flex-col md:flex-row items-center md:items-start gap-8 my-5">
+//         <div className="flex flex-col items-center">
+//           <Avatar className="h-24 w-24 md:h-32 md:w-32 mb-4">
+//             <AvatarImage
+//               src={user?.photoUrl || "https://github.com/shadcn.png"}
+//               alt={user?.name || "User"}
+//             />
+//             <AvatarFallback>CN</AvatarFallback>
+//           </Avatar>
+//         </div>
+//         <div>
+//           <div className="mb-2 font-semibold">
+//             Name:
+//             <span className="font-normal ml-2">{user.name}</span>
+//           </div>
+//           <div className="mb-2 font-semibold">
+//             Email:
+//             <span className="font-normal ml-2">{user.email}</span>
+//           </div>
+//           <div className="mb-2 font-semibold">
+//             Role:
+//             <span className="font-normal ml-2">{user.role.toUpperCase()}</span>
+//           </div>
+//           <div className="mb-2 font-semibold">
+//             Experience Level:
+//             <span className="font-normal ml-2">{user.experienceLevel}</span>
+//           </div>
+//           <div className="mb-2 font-semibold">
+//             Skills:
+//             <span className="font-normal ml-2">
+//               {user.skills?.join(", ") || "None"}
+//             </span>
+//           </div>
+//           <div className="mb-2 font-semibold">
+//             Interests:
+//             <span className="font-normal ml-2">
+//               {user.interests?.join(", ") || "None"}
+//             </span>
+//           </div>
+
+//           <Dialog>
+//             <DialogTrigger asChild>
+//               <Button size="sm" className="mt-3">
+//                 Edit Profile
+//               </Button>
+//             </DialogTrigger>
+//             <DialogContent>
+//               <DialogHeader>
+//                 <DialogTitle>Edit Profile</DialogTitle>
+//                 <DialogDescription>
+//                   Update your details below.
+//                 </DialogDescription>
+//               </DialogHeader>
+//               <div className="grid gap-4 py-4">
+//                 <div className="grid grid-cols-4 items-center gap-4">
+//                   <Label>Name</Label>
+//                   <Input
+//                     type="text"
+//                     value={name}
+//                     onChange={(e) => setName(e.target.value)}
+//                     placeholder="Name"
+//                     className="col-span-3"
+//                   />
+//                 </div>
+//                 <div className="grid grid-cols-4 items-center gap-4">
+//                   <Label>Profile Photo</Label>
+//                   <Input
+//                     onChange={onChangeHandler}
+//                     type="file"
+//                     accept="image/*"
+//                     className="col-span-3"
+//                   />
+//                 </div>
+//                 <div className="grid grid-cols-4 items-center gap-4">
+//                   <Label>Skills</Label>
+//                   <Input
+//                     value={skills.join(", ")}
+//                     onChange={(e) =>
+//                       setSkills(e.target.value.split(",").map((s) => s.trim()))
+//                     }
+//                     className="col-span-3"
+//                   />
+//                 </div>
+//                 <div className="grid grid-cols-4 items-center gap-4">
+//                   <Label>Interests</Label>
+//                   <Input
+//                     value={interests.join(", ")}
+//                     onChange={(e) =>
+//                       setInterests(
+//                         e.target.value.split(",").map((s) => s.trim())
+//                       )
+//                     }
+//                     className="col-span-3"
+//                   />
+//                 </div>
+//                 <div className="grid grid-cols-4 items-center gap-4">
+//                   <Label>Experience</Label>
+//                   <select
+//                     className="border p-2 rounded col-span-3"
+//                     value={experienceLevel}
+//                     onChange={(e) => setExperienceLevel(e.target.value)}
+//                   >
+//                     <option value="beginner">Beginner</option>
+//                     <option value="intermediate">Intermediate</option>
+//                     <option value="advanced">Advanced</option>
+//                   </select>
+//                 </div>
+//               </div>
+//               <DialogFooter>
+//                 <Button
+//                   disabled={updateUserIsLoading}
+//                   onClick={updateUserHandler}
+//                 >
+//                   {updateUserIsLoading ? (
+//                     <>
+//                       <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Saving...
+//                     </>
+//                   ) : (
+//                     "Save Changes"
+//                   )}
+//                 </Button>
+//               </DialogFooter>
+//             </DialogContent>
+//           </Dialog>
+//         </div>
+//       </div>
+
+//       {/* Enrolled Courses */}
+//       <div className="mt-10">
+//         <h2 className="font-semibold text-xl mb-4">
+//           Courses You're Enrolled In
+//         </h2>
+//         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+//           {user.enrolledCourses?.length === 0 ? (
+//             <p>You haven't enrolled yet</p>
+//           ) : (
+//             user.enrolledCourses.map((course) => (
+//               <Course course={course} key={course._id} />
+//             ))
+//           )}
+//         </div>
+//       </div>
+
+//       {/* Recommended Courses */}
+//       <div className="mt-10">
+//         <h2 className="font-semibold text-xl mb-4">Recommended Courses</h2>
+//         {recommendationLoading ? (
+//           <p>Loading recommended courses...</p>
+//         ) : (
+//           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+//             {recommendedCourses.length > 0 ? (
+//               recommendedCourses.map((course) => (
+//                 <Course course={course} key={course._id} />
+//               ))
+//             ) : (
+//               <p>No recommendations yet. Try adding skills & interests.</p>
+//             )}
+//           </div>
+//         )}
+//       </div>
+//     </div>
+//   );
+// };
+
+// export default Profile;
+
+
+// import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+// import { Button } from "@/components/ui/button";
+// import {
+//   Dialog,
+//   DialogContent,
+//   DialogDescription,
+//   DialogFooter,
+//   DialogHeader,
+//   DialogTitle,
+//   DialogTrigger,
+// } from "@/components/ui/dialog";
+// import { Input } from "@/components/ui/input";
+// import { Label } from "@/components/ui/label";
+// import {
+//   useLoadUserQuery,
+//   useUpdateUserMutation,
+// } from "@/features/api/authApi";
+// import { useGetRecommendedCoursesQuery } from "@/features/api/courseApi";
+// import { Loader2 } from "lucide-react";
+// import { useEffect, useState } from "react";
+// import { toast } from "sonner";
+// import Course from "./Course";
+
+// const Profile = () => {
+//   const [name, setName] = useState("");
+//   const [profilePhoto, setProfilePhoto] = useState("");
+//   const [skills, setSkills] = useState([]);
+//   const [interests, setInterests] = useState([]);
+//   const [experienceLevel, setExperienceLevel] = useState("beginner");
+//   const [isDialogOpen, setIsDialogOpen] = useState(false); // dialog state
+
+//   const { data, isLoading, refetch } = useLoadUserQuery();
+//   const {
+//     data: recommendationData,
+//     isLoading: recommendationLoading,
+//   } = useGetRecommendedCoursesQuery();
+
+//   const recommendedCourses = recommendationData?.recommendedCourses || [];
+
+//   const [
+//     updateUser,
+//     {
+//       data: updateUserData,
+//       isLoading: updateUserIsLoading,
+//       isError,
+//       error,
+//       isSuccess,
+//     },
+//   ] = useUpdateUserMutation();
+
+//   const onChangeHandler = (e) => {
+//     const file = e.target.files?.[0];
+//     if (file) setProfilePhoto(file);
+//   };
+
+//   const updateUserHandler = async () => {
+//     const formData = new FormData();
+//     formData.append("name", name);
+//     if (profilePhoto) {
+//       formData.append("profilePhoto", profilePhoto);
+//     }
+//     skills.forEach((skill) => formData.append("skills[]", skill));
+//     interests.forEach((interest) => formData.append("interests[]", interest));
+//     formData.append("experienceLevel", experienceLevel);
+//     await updateUser(formData);
+//   };
+
+//   useEffect(() => {
+//     refetch();
+//   }, []);
+
+//   useEffect(() => {
+//     if (data?.user) {
+//       setName(data.user.name || "");
+//       setSkills(data.user.skills || []);
+//       setInterests(data.user.interests || []);
+//       setExperienceLevel(data.user.experienceLevel || "beginner");
+//     }
+//   }, [data]);
+
+//   useEffect(() => {
+//     if (isSuccess) {
+//       toast.success("Profile updated.");
+//       refetch(); // refresh data
+//       setIsDialogOpen(false); // close the form
+//     }
+//     if (isError) {
+//       toast.error(error?.message || "Failed to update profile");
+//     }
+//   }, [isSuccess, isError]);
+
+//   if (isLoading) return <h1>Loading profile...</h1>;
+
+//   const user = data && data.user;
+
+//   return (
+//     <div className="max-w-4xl mx-auto px-4 my-10">
+//       <h1 className="font-bold text-2xl text-center md:text-left">PROFILE</h1>
+//       <div className="flex flex-col md:flex-row items-center md:items-start gap-8 my-5">
+//         <div className="flex flex-col items-center">
+//           <Avatar className="h-24 w-24 md:h-32 md:w-32 mb-4">
+//             <AvatarImage
+//               src={user?.photoUrl || "https://github.com/shadcn.png"}
+//               alt={user?.name || "User"}
+//             />
+//             <AvatarFallback>CN</AvatarFallback>
+//           </Avatar>
+//         </div>
+//         <div>
+//           <div className="mb-2 font-semibold">
+//             Name: <span className="font-normal ml-2">{user.name}</span>
+//           </div>
+//           <div className="mb-2 font-semibold">
+//             Email: <span className="font-normal ml-2">{user.email}</span>
+//           </div>
+//           <div className="mb-2 font-semibold">
+//             Role: <span className="font-normal ml-2">{user.role.toUpperCase()}</span>
+//           </div>
+//           <div className="mb-2 font-semibold">
+//             Experience Level:
+//             <span className="font-normal ml-2">{user.experienceLevel}</span>
+//           </div>
+//           <div className="mb-2 font-semibold">
+//             Skills:
+//             <span className="font-normal ml-2">
+//               {user.skills?.join(", ") || "None"}
+//             </span>
+//           </div>
+//           <div className="mb-2 font-semibold">
+//             Interests:
+//             <span className="font-normal ml-2">
+//               {user.interests?.join(", ") || "None"}
+//             </span>
+//           </div>
+
+//           <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+//             <DialogTrigger asChild>
+//               <Button size="sm" className="mt-3">
+//                 Edit Profile
+//               </Button>
+//             </DialogTrigger>
+//             <DialogContent>
+//               <DialogHeader>
+//                 <DialogTitle>Edit Profile</DialogTitle>
+//                 <DialogDescription>
+//                   Update your details below.
+//                 </DialogDescription>
+//               </DialogHeader>
+//               <div className="grid gap-4 py-4">
+//                 <div className="grid grid-cols-4 items-center gap-4">
+//                   <Label>Name</Label>
+//                   <Input
+//                     type="text"
+//                     value={name}
+//                     onChange={(e) => setName(e.target.value)}
+//                     placeholder="Name"
+//                     className="col-span-3"
+//                   />
+//                 </div>
+//                 <div className="grid grid-cols-4 items-center gap-4">
+//                   <Label>Profile Photo</Label>
+//                   <Input
+//                     onChange={onChangeHandler}
+//                     type="file"
+//                     accept="image/*"
+//                     className="col-span-3"
+//                   />
+//                 </div>
+//                 <div className="grid grid-cols-4 items-center gap-4">
+//                   <Label>Skills</Label>
+//                   <Input
+//                     value={skills.join(", ")}
+//                     onChange={(e) =>
+//                       setSkills(e.target.value.split(",").map((s) => s.trim()))
+//                     }
+//                     className="col-span-3"
+//                   />
+//                 </div>
+//                 <div className="grid grid-cols-4 items-center gap-4">
+//                   <Label>Interests</Label>
+//                   <Input
+//                     value={interests.join(", ")}
+//                     onChange={(e) =>
+//                       setInterests(
+//                         e.target.value.split(",").map((s) => s.trim())
+//                       )
+//                     }
+//                     className="col-span-3"
+//                   />
+//                 </div>
+//                 <div className="grid grid-cols-4 items-center gap-4">
+//                   <Label>Experience</Label>
+//                   <select
+//                     className="border p-2 rounded col-span-3"
+//                     value={experienceLevel}
+//                     onChange={(e) => setExperienceLevel(e.target.value)}
+//                   >
+//                     <option value="beginner">Beginner</option>
+//                     <option value="intermediate">Intermediate</option>
+//                     <option value="advanced">Advanced</option>
+//                   </select>
+//                 </div>
+//               </div>
+//               <DialogFooter>
+//                 <Button
+//                   disabled={updateUserIsLoading}
+//                   onClick={updateUserHandler}
+//                 >
+//                   {updateUserIsLoading ? (
+//                     <>
+//                       <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Saving...
+//                     </>
+//                   ) : (
+//                     "Save Changes"
+//                   )}
+//                 </Button>
+//               </DialogFooter>
+//             </DialogContent>
+//           </Dialog>
+//         </div>
+//       </div>
+
+//       {/* Enrolled Courses */}
+//       <div className="mt-10">
+//         <h2 className="font-semibold text-xl mb-4">Courses You're Enrolled In</h2>
+//         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+//           {user.enrolledCourses?.length === 0 ? (
+//             <p>You haven't enrolled yet</p>
+//           ) : (
+//             user.enrolledCourses.map((course) => (
+//               <Course course={course} key={course._id} />
+//             ))
+//           )}
+//         </div>
+//       </div>
+
+//       {/* Recommended Courses */}
+//       <div className="mt-10">
+//         <h2 className="font-semibold text-xl mb-4">Recommended Courses</h2>
+//         {recommendationLoading ? (
+//           <p>Loading recommended courses...</p>
+//         ) : (
+//           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+//             {recommendedCourses.length > 0 ? (
+//               recommendedCourses.map((course) => (
+//                 <Course course={course} key={course._id} />
+//               ))
+//             ) : (
+//               <p>No recommendations yet. Try adding skills & interests.</p>
+//             )}
+//           </div>
+//         )}
+//       </div>
+//     </div>
+//   );
+// };
+
+// export default Profile;
+
+
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
@@ -443,15 +1220,15 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Loader2 } from "lucide-react";
-import React, { useEffect, useState } from "react";
-import Course from "./Course";
 import {
   useLoadUserQuery,
   useUpdateUserMutation,
 } from "@/features/api/authApi";
 import { useGetRecommendedCoursesQuery } from "@/features/api/courseApi";
+import { Loader2 } from "lucide-react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
+import Course from "./Course";
 
 const Profile = () => {
   const [name, setName] = useState("");
@@ -459,9 +1236,19 @@ const Profile = () => {
   const [skills, setSkills] = useState([]);
   const [interests, setInterests] = useState([]);
   const [experienceLevel, setExperienceLevel] = useState("beginner");
+  const [isDialogOpen, setIsDialogOpen] = useState(false); // control dialog
 
-  const { data, isLoading, refetch } = useLoadUserQuery();
-  const { data: recommendedCourses } = useGetRecommendedCoursesQuery();
+  const { data, isLoading, refetch: refetchUser } = useLoadUserQuery();
+
+  const {
+    data: recommendationData,
+    isLoading: recommendationLoading,
+    refetch: refetchRecommended,
+  } = useGetRecommendedCoursesQuery(undefined, {
+    refetchOnMountOrArgChange: true,
+  });
+
+  const recommendedCourses = recommendationData?.recommendedCourses || [];
 
   const [
     updateUser,
@@ -492,7 +1279,7 @@ const Profile = () => {
   };
 
   useEffect(() => {
-    refetch();
+    refetchUser();
   }, []);
 
   useEffect(() => {
@@ -506,17 +1293,19 @@ const Profile = () => {
 
   useEffect(() => {
     if (isSuccess) {
-      refetch();
       toast.success("Profile updated.");
+      setIsDialogOpen(false); // close modal
+      refetchUser(); // refresh user data
+      refetchRecommended(); // refresh recommended courses
     }
     if (isError) {
       toast.error(error?.message || "Failed to update profile");
     }
-  }, [error, updateUserData, isSuccess, isError]);
+  }, [isSuccess, isError]);
 
   if (isLoading) return <h1>Loading profile...</h1>;
 
-  const user = data && data.user;
+  const user = data?.user;
 
   return (
     <div className="max-w-4xl mx-auto px-4 my-10">
@@ -526,23 +1315,20 @@ const Profile = () => {
           <Avatar className="h-24 w-24 md:h-32 md:w-32 mb-4">
             <AvatarImage
               src={user?.photoUrl || "https://github.com/shadcn.png"}
-              alt="@shadcn"
+              alt={user?.name || "User"}
             />
             <AvatarFallback>CN</AvatarFallback>
           </Avatar>
         </div>
         <div>
           <div className="mb-2 font-semibold">
-            Name:
-            <span className="font-normal ml-2">{user.name}</span>
+            Name: <span className="font-normal ml-2">{user.name}</span>
           </div>
           <div className="mb-2 font-semibold">
-            Email:
-            <span className="font-normal ml-2">{user.email}</span>
+            Email: <span className="font-normal ml-2">{user.email}</span>
           </div>
           <div className="mb-2 font-semibold">
-            Role:
-            <span className="font-normal ml-2">{user.role.toUpperCase()}</span>
+            Role: <span className="font-normal ml-2">{user.role.toUpperCase()}</span>
           </div>
           <div className="mb-2 font-semibold">
             Experience Level:
@@ -561,7 +1347,7 @@ const Profile = () => {
             </span>
           </div>
 
-          <Dialog>
+          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
             <DialogTrigger asChild>
               <Button size="sm" className="mt-3">
                 Edit Profile
@@ -636,8 +1422,7 @@ const Profile = () => {
                 >
                   {updateUserIsLoading ? (
                     <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />{" "}
-                      Saving...
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Saving...
                     </>
                   ) : (
                     "Save Changes"
@@ -649,13 +1434,12 @@ const Profile = () => {
         </div>
       </div>
 
+      {/* Enrolled Courses */}
       <div className="mt-10">
-        <h2 className="font-semibold text-xl mb-4">
-          Courses You're Enrolled In
-        </h2>
+        <h2 className="font-semibold text-xl mb-4">Courses You're Enrolled In</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-          {user.enrolledCourses.length === 0 ? (
-            <h1>You haven't enrolled yet</h1>
+          {user.enrolledCourses?.length === 0 ? (
+            <p>You haven't enrolled yet</p>
           ) : (
             user.enrolledCourses.map((course) => (
               <Course course={course} key={course._id} />
@@ -664,17 +1448,22 @@ const Profile = () => {
         </div>
       </div>
 
+      {/* Recommended Courses */}
       <div className="mt-10">
         <h2 className="font-semibold text-xl mb-4">Recommended Courses</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-          {recommendedCourses?.courses?.length > 0 ? (
-            recommendedCourses.courses.map((course) => (
-              <Course course={course} key={course._id} />
-            ))
-          ) : (
-            <p>No recommendations yet. Try adding skills & interests.</p>
-          )}
-        </div>
+        {recommendationLoading ? (
+          <p>Loading recommended courses...</p>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+            {recommendedCourses.length > 0 ? (
+              recommendedCourses.map((course) => (
+                <Course course={course} key={course._id} />
+              ))
+            ) : (
+              <p>No recommendations yet. Try adding skills & interests.</p>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );

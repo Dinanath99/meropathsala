@@ -88,7 +88,7 @@ const MainLayout = () => {
       <div className="flex-1 mt-16">
         <Outlet />
       </div>
-      <Footer />
+      {/* <Footer /> */}
 
       {/* 🎯 Skills & Interests Modal */}
       <Dialog open={openModal}>

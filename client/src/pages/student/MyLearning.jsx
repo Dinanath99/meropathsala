@@ -46,7 +46,7 @@ import { useLoadUserQuery } from "@/features/api/authApi";
 
 const MyLearning = () => {
   const { data, isLoading } = useLoadUserQuery();
-
+console.log(data)
   if (isLoading) return <MyLearningSkeleton />;
 
   // Check if user is student
