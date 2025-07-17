@@ -1,152 +1,3 @@
-// import {User} from "../models/user.model.js";
-// import bcrypt from "bcryptjs";
-// import { generateToken } from "../utils/generateToken.js";
-// import { deleteMediaFromCloudinary, uploadMedia } from "../utils/cloudinary.js";
-
-// export const register = async (req,res) => {
-//     try {
-       
-//         const {name, email, password} = req.body; // patel214
-//         if(!name || !email || !password){
-//             return res.status(400).json({
-//                 success:false,
-//                 message:"All fields are required."
-//             })
-//         }
-//         const user = await User.findOne({email});
-//         if(user){
-//             return res.status(400).json({
-//                 success:false,
-//                 message:"User already exist with this email."
-//             })
-//         }
-//         const hashedPassword = await bcrypt.hash(password, 10);
-//         await User.create({
-//             name,
-//             email,
-//             password:hashedPassword
-//         });
-//         return res.status(201).json({
-//             success:true,
-//             message:"Account created successfully."
-//         })
-//     } catch (error) {
-//         console.log(error);
-//         return res.status(500).json({
-//             success:false,
-//             message:"Failed to register"
-//         })
-//     }
-// }
-// export const login = async (req,res) => {
-//     try {
-//         const {email, password} = req.body;
-//         if(!email || !password){
-//             return res.status(400).json({
-//                 success:false,
-//                 message:"All fields are required."
-//             })
-//         }
-//         const user = await User.findOne({email});
-//         if(!user){
-//             return res.status(400).json({
-//                 success:false,
-//                 message:"Incorrect email or password"
-//             })
-//         }
-//         const isPasswordMatch = await bcrypt.compare(password, user.password);
-//         if(!isPasswordMatch){
-//             return res.status(400).json({
-//                 success:false,
-//                 message:"Incorrect email or password"
-//             });
-//         }
-//         generateToken(res, user, `Welcome back ${user.name}`);
-
-//     } catch (error) {
-//         console.log(error);
-//         return res.status(500).json({
-//             success:false,
-//             message:"Failed to login"
-//         })
-//     }
-// }
-// export const logout = async (_,res) => {
-//     try {
-//         return res.status(200).cookie("token", "", {maxAge:0}).json({
-//             message:"Logged out successfully.",
-//             success:true
-//         })
-//     } catch (error) {
-//         console.log(error);
-//         return res.status(500).json({
-//             success:false,
-//             message:"Failed to logout"
-//         }) 
-//     }
-// }
-// export const getUserProfile = async (req,res) => {
-//     try {
-//         const userId = req.id;
-//         const user = await User.findById(userId).select("-password").populate("enrolledCourses");
-//         if(!user){
-//             return res.status(404).json({
-//                 message:"Profile not found",
-//                 success:false
-//             })
-//         }
-//         return res.status(200).json({
-//             success:true,
-//             user
-//         })
-//     } catch (error) {
-//         console.log(error);
-//         return res.status(500).json({
-//             success:false,
-//             message:"Failed to load user"
-//         })
-//     }
-// }
-// export const updateProfile = async (req,res) => {
-//     try {
-//         const userId = req.id;
-//         const {name} = req.body;
-//         const profilePhoto = req.file;
-
-//         const user = await User.findById(userId);
-//         if(!user){
-//             return res.status(404).json({
-//                 message:"User not found",
-//                 success:false
-//             }) 
-//         }
-//         // extract public id of the old image from the url is it exists;
-//         if(user.photoUrl){
-//             const publicId = user.photoUrl.split("/").pop().split(".")[0]; // extract public id
-//             deleteMediaFromCloudinary(publicId);
-//         }
-
-//         // upload new photo
-//         const cloudResponse = await uploadMedia(profilePhoto.path);
-//         const photoUrl = cloudResponse.secure_url;
-
-//         const updatedData = {name, photoUrl};
-//         const updatedUser = await User.findByIdAndUpdate(userId, updatedData, {new:true}).select("-password");
-
-//         return res.status(200).json({
-//             success:true,
-//             user:updatedUser,
-//             message:"Profile updated successfully."
-//         })
-
-//     } catch (error) {
-//         console.log(error);
-//         return res.status(500).json({
-//             success:false,
-//             message:"Failed to update profile"
-//         })
-//     }
-// }
 
 
 import { User } from "../models/user.model.js";
@@ -293,6 +144,94 @@ export const getUserProfile = async (req, res) => {
   }
 };
 
+export const updateProfile = async (req, res) => {
+  try {
+    const userId = req.id;
+    const {
+      name,
+      skills,
+      interests,
+      experienceLevel,
+      roles,
+      jobTitle,
+      educationLevel,
+    } = req.body;
+    const profilePhoto = req.file;
+
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({
+        message: "User not found",
+        success: false,
+      });
+    }
+
+    const updatedData = {};
+
+    if (name) updatedData.name = name;
+
+    // Skills - accept string or array
+    if (skills) {
+      if (typeof skills === "string") {
+        updatedData.skills = skills.split(",").map((s) => s.trim());
+      } else if (Array.isArray(skills)) {
+        updatedData.skills = skills;
+      }
+    }
+
+    // Interests - accept string or array
+    if (interests) {
+      if (typeof interests === "string") {
+        updatedData.interests = interests.split(",").map((i) => i.trim());
+      } else if (Array.isArray(interests)) {
+        updatedData.interests = interests;
+      }
+    }
+
+    if (experienceLevel) updatedData.experienceLevel = experienceLevel;
+
+    // New fields from multi-step modal:
+    if (roles) {
+      if (typeof roles === "string") {
+        updatedData.roles = roles.split(",").map((r) => r.trim());
+      } else if (Array.isArray(roles)) {
+        updatedData.roles = roles;
+      }
+    }
+
+    if (jobTitle) updatedData.jobTitle = jobTitle;
+
+    if (educationLevel) updatedData.educationLevel = educationLevel;
+
+    // Profile Photo Handling (existing logic)
+    if (profilePhoto) {
+      if (user.photoUrl) {
+        const publicId = user.photoUrl.split("/").pop().split(".")[0];
+        await deleteMediaFromCloudinary(publicId);
+      }
+      const cloudResponse = await uploadMedia(profilePhoto.path);
+      updatedData.photoUrl = cloudResponse.secure_url;
+    }
+
+    const updatedUser = await User.findByIdAndUpdate(userId, updatedData, {
+      new: true,
+    }).select("-password");
+
+    return res.status(200).json({
+      success: true,
+      message: "Profile updated successfully.",
+      user: updatedUser,
+    });
+  } catch (error) {
+    console.error("Error updating profile:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Failed to update profile.",
+    });
+  }
+};
+
+
 // export const updateProfile = async (req, res) => {
 //   try {
 //     const userId = req.id;
@@ -336,75 +275,75 @@ export const getUserProfile = async (req, res) => {
 
 
 
-export const updateProfile = async (req, res) => {
-  try {
-    const userId = req.id;
-    const { name, skills, interests, experienceLevel } = req.body;
-    const profilePhoto = req.file;
+// export const updateProfile = async (req, res) => {
+//   try {
+//     const userId = req.id;
+//     const { name, skills, interests, experienceLevel } = req.body;
+//     const profilePhoto = req.file;
 
-    const user = await User.findById(userId);
-    if (!user) {
-      return res.status(404).json({
-        message: "User not found",
-        success: false,
-      });
-    }
+//     const user = await User.findById(userId);
+//     if (!user) {
+//       return res.status(404).json({
+//         message: "User not found",
+//         success: false,
+//       });
+//     }
 
-    // Prepare object for updates
-    const updatedData = {};
+//     // Prepare object for updates
+//     const updatedData = {};
 
-    if (name) updatedData.name = name;
+//     if (name) updatedData.name = name;
 
-    // ✅ Update skills & interests if provided
-    if (skills) {
-      // handle both comma-separated string or array
-      if (typeof skills === "string") {
-        updatedData.skills = skills.split(",").map((s) => s.trim());
-      } else if (Array.isArray(skills)) {
-        updatedData.skills = skills;
-      }
-    }
+//     // ✅ Update skills & interests if provided
+//     if (skills) {
+//       // handle both comma-separated string or array
+//       if (typeof skills === "string") {
+//         updatedData.skills = skills.split(",").map((s) => s.trim());
+//       } else if (Array.isArray(skills)) {
+//         updatedData.skills = skills;
+//       }
+//     }
 
-    if (interests) {
-      if (typeof interests === "string") {
-        updatedData.interests = interests.split(",").map((i) => i.trim());
-      } else if (Array.isArray(interests)) {
-        updatedData.interests = interests;
-      }
-    }
+//     if (interests) {
+//       if (typeof interests === "string") {
+//         updatedData.interests = interests.split(",").map((i) => i.trim());
+//       } else if (Array.isArray(interests)) {
+//         updatedData.interests = interests;
+//       }
+//     }
 
-    if (experienceLevel) {
-      updatedData.experienceLevel = experienceLevel;
-    }
+//     if (experienceLevel) {
+//       updatedData.experienceLevel = experienceLevel;
+//     }
 
-    // ✅ Profile Photo Handling
-    if (profilePhoto) {
-      // Delete old photo if exists
-      if (user.photoUrl) {
-        const publicId = user.photoUrl.split("/").pop().split(".")[0];
-        await deleteMediaFromCloudinary(publicId);
-      }
+//     // ✅ Profile Photo Handling
+//     if (profilePhoto) {
+//       // Delete old photo if exists
+//       if (user.photoUrl) {
+//         const publicId = user.photoUrl.split("/").pop().split(".")[0];
+//         await deleteMediaFromCloudinary(publicId);
+//       }
 
-      // Upload new photo to Cloudinary
-      const cloudResponse = await uploadMedia(profilePhoto.path);
-      updatedData.photoUrl = cloudResponse.secure_url;
-    }
+//       // Upload new photo to Cloudinary
+//       const cloudResponse = await uploadMedia(profilePhoto.path);
+//       updatedData.photoUrl = cloudResponse.secure_url;
+//     }
 
-    // ✅ Update user in DB
-    const updatedUser = await User.findByIdAndUpdate(userId, updatedData, {
-      new: true,
-    }).select("-password");
+//     // ✅ Update user in DB
+//     const updatedUser = await User.findByIdAndUpdate(userId, updatedData, {
+//       new: true,
+//     }).select("-password");
 
-    return res.status(200).json({
-      success: true,
-      message: "Profile updated successfully.",
-      user: updatedUser,
-    });
-  } catch (error) {
-    console.error("Error updating profile:", error);
-    return res.status(500).json({
-      success: false,
-      message: "Failed to update profile.",
-    });
-  }
-};
+//     return res.status(200).json({
+//       success: true,
+//       message: "Profile updated successfully.",
+//       user: updatedUser,
+//     });
+//   } catch (error) {
+//     console.error("Error updating profile:", error);
+//     return res.status(500).json({
+//       success: false,
+//       message: "Failed to update profile.",
+//     });
+//   }
+// };
