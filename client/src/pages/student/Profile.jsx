@@ -390,10 +390,10 @@ const Profile = () => {
           <AvatarFallback className="text-3xl font-extrabold">
             {user.name
               ? user.name
-                  .split(" ")
-                  .map((n) => n[0])
-                  .join("")
-                  .toUpperCase()
+                .split(" ")
+                .map((n) => n[0])
+                .join("")
+                .toUpperCase()
               : "NA"}
           </AvatarFallback>
         </Avatar>
@@ -571,7 +571,7 @@ const Profile = () => {
             {/* Preffered Roles */}
 
             {/* Preferred Roles */}
-            <div className="grid grid-cols-4 items-center gap-4">
+            {/* <div className="grid grid-cols-4 items-center gap-4">
               <Label>Preferred Roles</Label>
               <select
                 multiple
@@ -599,7 +599,37 @@ const Profile = () => {
                 </option>
                 <option value="Data Scientist">Data Scientist</option>
               </select>
+            </div> */}
+
+
+
+            {/* Preferred Roles (Beautiful Toggle Button Group) */}
+
+
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label>Preferred Roles</Label>
+              <select
+                multiple
+                className="border p-2 rounded col-span-3 bg-slate-600 text-white h-40"
+                value={preferredRoles}
+                onChange={(e) =>
+                  setPreferredRoles(
+                    Array.from(e.target.selectedOptions, (option) => option.value)
+                  )
+                }
+              >
+                <option value="Frontend Developer">Frontend Developer</option>
+                <option value="Backend Developer">Backend Developer</option>
+                <option value="Fullstack Developer">Fullstack Developer</option>
+                <option value="DevOps Engineer">DevOps Engineer</option>
+                <option value="UI/UX Designer">UI/UX Designer</option>
+                <option value="Cybersecurity Specialist">Cybersecurity Specialist</option>
+                <option value="Machine Learning Engineer">Machine Learning Engineer</option>
+                <option value="Data Scientist">Data Scientist</option>
+              </select>
             </div>
+
+
 
             <div className="grid grid-cols-4 items-center gap-4">
               <Label>Job Title</Label>
