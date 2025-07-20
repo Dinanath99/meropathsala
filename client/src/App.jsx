@@ -38,6 +38,7 @@ import PurchaseCourseProtectedRoute from "./components/PurchaseCourseProtectedRo
 
 // Theme
 import { ThemeProvider } from "./components/ThemeProvider";
+import Footer from "./components/Footer";
 
 const appRouter = createBrowserRouter([
   {
@@ -50,6 +51,7 @@ const appRouter = createBrowserRouter([
           <>
             <HeroSection />
             <Courses />
+            <Footer/>
           </>
         ),
       },

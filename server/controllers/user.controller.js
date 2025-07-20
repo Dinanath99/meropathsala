@@ -144,6 +144,97 @@ export const getUserProfile = async (req, res) => {
   }
 };
 
+// export const updateProfile = async (req, res) => {
+//   try {
+//     const userId = req.id;
+//     const {
+//       name,
+//       skills,
+//       interests,
+//       experienceLevel,
+//       roles,
+//       jobTitle,
+//       educationLevel,
+//     } = req.body;
+//     const profilePhoto = req.file;
+
+//     const user = await User.findById(userId);
+//     if (!user) {
+//       return res.status(404).json({
+//         message: "User not found",
+//         success: false,
+//       });
+//     }
+
+//     const updatedData = {};
+
+//     if (name) updatedData.name = name;
+
+//     // Skills - accept string or array
+//     if (skills) {
+//       if (typeof skills === "string") {
+//         updatedData.skills = skills.split(",").map((s) => s.trim());
+//       } else if (Array.isArray(skills)) {
+//         updatedData.skills = skills;
+//       }
+//     }
+
+//     // Interests - accept string or array
+//     if (interests) {
+//       if (typeof interests === "string") {
+//         updatedData.interests = interests.split(",").map((i) => i.trim());
+//       } else if (Array.isArray(interests)) {
+//         updatedData.interests = interests;
+//       }
+//     }
+
+//     if (experienceLevel) updatedData.experienceLevel = experienceLevel;
+
+//     // New fields from multi-step modal:
+//     if (roles) {
+//       if (typeof roles === "string") {
+//         updatedData.roles = roles.split(",").map((r) => r.trim());
+//       } else if (Array.isArray(roles)) {
+//         updatedData.roles = roles;
+//       }
+//     }
+
+//     if (jobTitle) updatedData.jobTitle = jobTitle;
+
+//     if (educationLevel) updatedData.educationLevel = educationLevel;
+
+//     // Profile Photo Handling (existing logic)
+//     if (profilePhoto) {
+//       if (user.photoUrl) {
+//         const publicId = user.photoUrl.split("/").pop().split(".")[0];
+//         await deleteMediaFromCloudinary(publicId);
+//       }
+//       const cloudResponse = await uploadMedia(profilePhoto.path);
+//       updatedData.photoUrl = cloudResponse.secure_url;
+//     }
+
+//     const updatedUser = await User.findByIdAndUpdate(userId, updatedData, {
+//       new: true,
+//     }).select("-password");
+
+//     return res.status(200).json({
+//       success: true,
+//       message: "Profile updated successfully.",
+//       user: updatedUser,
+//     });
+//   } catch (error) {
+//     console.error("Error updating profile:", error);
+//     return res.status(500).json({
+//       success: false,
+//       message: "Failed to update profile.",
+//     });
+//   }
+// };
+
+
+
+
+
 export const updateProfile = async (req, res) => {
   try {
     const userId = req.id;
@@ -152,7 +243,7 @@ export const updateProfile = async (req, res) => {
       skills,
       interests,
       experienceLevel,
-      roles,
+      preferredRoles, // <-- changed from roles
       jobTitle,
       educationLevel,
     } = req.body;
@@ -170,40 +261,30 @@ export const updateProfile = async (req, res) => {
 
     if (name) updatedData.name = name;
 
-    // Skills - accept string or array
     if (skills) {
-      if (typeof skills === "string") {
-        updatedData.skills = skills.split(",").map((s) => s.trim());
-      } else if (Array.isArray(skills)) {
-        updatedData.skills = skills;
-      }
+      updatedData.skills = typeof skills === "string"
+        ? skills.split(",").map((s) => s.trim())
+        : skills;
     }
 
-    // Interests - accept string or array
     if (interests) {
-      if (typeof interests === "string") {
-        updatedData.interests = interests.split(",").map((i) => i.trim());
-      } else if (Array.isArray(interests)) {
-        updatedData.interests = interests;
-      }
+      updatedData.interests = typeof interests === "string"
+        ? interests.split(",").map((i) => i.trim())
+        : interests;
     }
 
     if (experienceLevel) updatedData.experienceLevel = experienceLevel;
 
-    // New fields from multi-step modal:
-    if (roles) {
-      if (typeof roles === "string") {
-        updatedData.roles = roles.split(",").map((r) => r.trim());
-      } else if (Array.isArray(roles)) {
-        updatedData.roles = roles;
-      }
+    // ✅ Fixed preferredRoles field
+    if (preferredRoles) {
+      updatedData.preferredRoles = typeof preferredRoles === "string"
+        ? preferredRoles.split(",").map((r) => r.trim())
+        : preferredRoles;
     }
 
     if (jobTitle) updatedData.jobTitle = jobTitle;
-
     if (educationLevel) updatedData.educationLevel = educationLevel;
 
-    // Profile Photo Handling (existing logic)
     if (profilePhoto) {
       if (user.photoUrl) {
         const publicId = user.photoUrl.split("/").pop().split(".")[0];
@@ -230,120 +311,3 @@ export const updateProfile = async (req, res) => {
     });
   }
 };
-
-
-// export const updateProfile = async (req, res) => {
-//   try {
-//     const userId = req.id;
-//     const { name } = req.body;
-//     const profilePhoto = req.file;
-
-//     const user = await User.findById(userId);
-//     if (!user) {
-//       return res.status(404).json({
-//         message: "User not found",
-//         success: false,
-//       });
-//     }
-
-//     if (user.photoUrl) {
-//       const publicId = user.photoUrl.split("/").pop().split(".")[0];
-//       await deleteMediaFromCloudinary(publicId);
-//     }
-
-//     const cloudResponse = await uploadMedia(profilePhoto.path);
-//     const photoUrl = cloudResponse.secure_url;
-
-//     const updatedData = { name, photoUrl };
-//     const updatedUser = await User.findByIdAndUpdate(userId, updatedData, {
-//       new: true,
-//     }).select("-password");
-
-//     return res.status(200).json({
-//       success: true,
-//       user: updatedUser,
-//       message: "Profile updated successfully.",
-//     });
-//   } catch (error) {
-//     console.error(error);
-//     return res.status(500).json({
-//       success: false,
-//       message: "Failed to update profile",
-//     });
-//   }
-// };
-
-
-
-// export const updateProfile = async (req, res) => {
-//   try {
-//     const userId = req.id;
-//     const { name, skills, interests, experienceLevel } = req.body;
-//     const profilePhoto = req.file;
-
-//     const user = await User.findById(userId);
-//     if (!user) {
-//       return res.status(404).json({
-//         message: "User not found",
-//         success: false,
-//       });
-//     }
-
-//     // Prepare object for updates
-//     const updatedData = {};
-
-//     if (name) updatedData.name = name;
-
-//     // ✅ Update skills & interests if provided
-//     if (skills) {
-//       // handle both comma-separated string or array
-//       if (typeof skills === "string") {
-//         updatedData.skills = skills.split(",").map((s) => s.trim());
-//       } else if (Array.isArray(skills)) {
-//         updatedData.skills = skills;
-//       }
-//     }
-
-//     if (interests) {
-//       if (typeof interests === "string") {
-//         updatedData.interests = interests.split(",").map((i) => i.trim());
-//       } else if (Array.isArray(interests)) {
-//         updatedData.interests = interests;
-//       }
-//     }
-
-//     if (experienceLevel) {
-//       updatedData.experienceLevel = experienceLevel;
-//     }
-
-//     // ✅ Profile Photo Handling
-//     if (profilePhoto) {
-//       // Delete old photo if exists
-//       if (user.photoUrl) {
-//         const publicId = user.photoUrl.split("/").pop().split(".")[0];
-//         await deleteMediaFromCloudinary(publicId);
-//       }
-
-//       // Upload new photo to Cloudinary
-//       const cloudResponse = await uploadMedia(profilePhoto.path);
-//       updatedData.photoUrl = cloudResponse.secure_url;
-//     }
-
-//     // ✅ Update user in DB
-//     const updatedUser = await User.findByIdAndUpdate(userId, updatedData, {
-//       new: true,
-//     }).select("-password");
-
-//     return res.status(200).json({
-//       success: true,
-//       message: "Profile updated successfully.",
-//       user: updatedUser,
-//     });
-//   } catch (error) {
-//     console.error("Error updating profile:", error);
-//     return res.status(500).json({
-//       success: false,
-//       message: "Failed to update profile.",
-//     });
-//   }
-// };
