@@ -54,29 +54,15 @@ const Footer = () => {
           </h3>
           <div className="flex space-x-4">
             <a
-              href="https://github.com"
+              href="https://github.com/Dinanath99/meropathsala"
               target="_blank"
               rel="noopener noreferrer"
               className="text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400"
             >
               <Github />
             </a>
-            <a
-              href="https://facebook.com"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400"
-            >
-              <Facebook />
-            </a>
-            <a
-              href="https://linkedin.com"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400"
-            >
-              <Linkedin />
-            </a>
+            
+            
           </div>
         </div>
       </div>

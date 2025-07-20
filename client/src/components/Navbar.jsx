@@ -272,7 +272,7 @@ const Navbar = () => {
                   <AvatarImage
                     src={
                       user?.photoUrl ||
-                      "https://avatars.githubusercontent.com/u/71966035?v=4"
+                      "https://avatar.iran.liara.run/public/boy"
                     }
                     alt="user"
                   />

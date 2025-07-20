@@ -39,11 +39,13 @@ import PurchaseCourseProtectedRoute from "./components/PurchaseCourseProtectedRo
 // Theme
 import { ThemeProvider } from "./components/ThemeProvider";
 import Footer from "./components/Footer";
+import AboutUs from "./components/AboutUs";
 
 const appRouter = createBrowserRouter([
   {
     path: "/",
     element: <MainLayout />,
+
     children: [
       {
         path: "/",
@@ -51,9 +53,14 @@ const appRouter = createBrowserRouter([
           <>
             <HeroSection />
             <Courses />
-            <Footer/>
+            <Footer />
           </>
         ),
+
+      },
+      {
+        path: "about",
+        element: <AboutUs />,
       },
       {
         path: "login",
