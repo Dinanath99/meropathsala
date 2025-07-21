@@ -3,22 +3,221 @@
 import { Course } from "../models/course.model.js";
 import { User } from "../models/user.model.js";
 
+import CourseClick from "../models/courseclick.model.js";
 import { CoursePurchase } from "../models/coursePurchase.model.js";
 import cosineSimilarity from "compute-cosine-similarity";
 
 const normalize = (str) => str.trim().toLowerCase();
 
-const experienceLevelScore = {
-  beginner: 0,
-  intermediate: 1,
-  advanced: 2,
+
+
+// export const recommendCourses = async (req, res) => {
+//   try {
+//     const userId = req.id;
+//     const user = await User.findById(userId).lean();
+//     if (!user) return res.status(404).json({ message: "User not found" });
+
+//     const userSkills = (user.skills || []).map(normalize);
+//     const userInterests = (user.interests || []).map(normalize);
+//     const userPreferredRoles = (user.preferredRoles || []).map(normalize);
+//     const userExperience = user.experienceLevel?.toLowerCase() || "beginner";
+//     const userEducationLevel = user.educationLevel?.toLowerCase();
+//     const enrolledIds = user.enrolledCourses?.map((id) => id.toString()) || [];
+
+//     // Map user experience to course level exactly
+//     const levelMapping = {
+//       beginner: "Beginner",
+//       intermediate: "Medium",
+//       advanced: "Advance",
+//     };
+//     const matchedLevel = levelMapping[userExperience] || "Beginner";
+
+//     // Get all courses not enrolled and published
+//     const allCourses = await Course.find({
+//       isPublished: true,
+//       _id: { $nin: enrolledIds },
+//     }).lean();
+
+//     // Filter courses with exact level + skill relevance (dynamic)
+//     const filteredCourses = allCourses.filter((course) => {
+//       const title = course.courseTitle?.toLowerCase() || "";
+//       const subTitle = course.subTitle?.toLowerCase() || "";
+//       const tags = (course.tags || []).map(normalize);
+//       const level = course.courseLevel;
+
+//       // Check if any user skill matches course title, subtitle, or tags
+//       const skillMatch = userSkills.some(
+//         (skill) =>
+//           title.includes(skill) || subTitle.includes(skill) || tags.includes(skill)
+//       );
+
+//       return level === matchedLevel && skillMatch;
+//     });
+
+//     // Scoring function (same logic as before)
+//     const calculateScore = (course) => {
+//       let score = 0;
+
+//       const title = course.courseTitle?.toLowerCase() || "";
+//       const subTitle = course.subTitle?.toLowerCase() || "";
+//       const tags = (course.tags || []).map(normalize);
+//       const courseLevel = courseLevelScore[course.courseLevel] ?? 1;
+//       const userExpScore = experienceLevelScore[userExperience] ?? 0;
+
+//       // Skills
+//       const skillMatches = userSkills.filter(
+//         (skill) =>
+//           title.includes(skill) || subTitle.includes(skill) || tags.includes(skill)
+//       ).length;
+//       const skillScore = skillMatches / (userSkills.length || 1);
+//       score += skillScore * 0.4;
+
+//       // Interests
+//       const interestMatches = userInterests.filter(
+//         (interest) =>
+//           title.includes(interest) || subTitle.includes(interest) || tags.includes(interest)
+//       ).length;
+//       const interestScore = interestMatches / (userInterests.length || 1);
+//       score += interestScore * 0.2;
+
+//       // Experience match
+//       const levelDiff = Math.abs(userExpScore - courseLevel);
+//       const levelScore = 1 - levelDiff / 2;
+//       score += levelScore * 0.15;
+
+//       // Preferred roles
+//       const roleMatches = userPreferredRoles.filter(
+//         (role) => title.includes(role) || subTitle.includes(role)
+//       ).length;
+//       const roleScore = roleMatches / (userPreferredRoles.length || 1);
+//       score += roleScore * 0.15;
+
+//       // Education level boost
+//       if (
+//         userEducationLevel &&
+//         (title.includes("bachelor") ||
+//           subTitle.includes("bachelor") ||
+//           tags.includes("bachelor"))
+//       ) {
+//         score += 0.1;
+//       }
+
+//       return score;
+//     };
+
+//     // Final scored recommendations
+//     const scoredCourses = filteredCourses
+//       .map((course) => ({
+//         ...course,
+//         score: calculateScore(course),
+//       }))
+//       .filter((course) => course.score >= 0.5)
+//       .sort((a, b) => b.score - a.score)
+//       .slice(0, 10);
+
+//     return res.status(200).json({
+//       success: true,
+//       recommendedCourses: scoredCourses,
+//     });
+//   } catch (error) {
+//     console.error("Recommendation Error:", error);
+//     return res.status(500).json({ message: "Failed to get recommendations" });
+//   }
+// };
+
+
+export const recommendCollaborativeCourses = async (req, res) => {
+  try {
+    const currentUserId = req.id;
+
+    // Get completed purchases
+    const allPurchases = await CoursePurchase.find({
+      status: "completed",
+    }).select("userId courseId");
+
+    // Courses current user already purchased
+    const userPurchasedSet = new Set(
+      allPurchases
+        .filter((p) => p.userId.toString() === currentUserId)
+        .map((p) => p.courseId.toString())
+    );
+
+    // Count purchases excluding already purchased by current user
+    const purchaseCountMap = new Map();
+    allPurchases.forEach((p) => {
+      const courseId = p.courseId.toString();
+      if (!userPurchasedSet.has(courseId)) {
+        purchaseCountMap.set(courseId, (purchaseCountMap.get(courseId) || 0) + 1);
+      }
+    });
+
+    // Get click counts by other users (not the current one)
+    const allClicks = await CourseClick.find({
+      userId: { $ne: currentUserId },
+    }).select("courseId");
+
+    const clickCountMap = new Map();
+    allClicks.forEach((c) => {
+      const courseId = c.courseId.toString();
+      if (!userPurchasedSet.has(courseId)) {
+        clickCountMap.set(courseId, (clickCountMap.get(courseId) || 0) + 1);
+      }
+    });
+
+    // Combine click and purchase scores
+    const scoreMap = new Map(); // courseId => score
+
+    const allCourseIds = new Set([
+      ...purchaseCountMap.keys(),
+      ...clickCountMap.keys(),
+    ]);
+
+    allCourseIds.forEach((courseId) => {
+      const purchaseScore = purchaseCountMap.get(courseId) || 0;
+      const clickScore = clickCountMap.get(courseId) || 0;
+
+      // Weighted score: give more priority to clicks
+      const totalScore = clickScore * 2 + purchaseScore;
+      scoreMap.set(courseId, totalScore);
+    });
+
+    // Sort and get top courseIds by totalScore descending
+    const recommendedCourseIds = Array.from(scoreMap.entries())
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 10)
+      .map(([courseId]) => courseId);
+
+    // Fetch course details for these courses
+    const courses = await Course.find({
+      _id: { $in: recommendedCourseIds },
+      isPublished: true,
+    }).select("courseTitle courseThumbnail courseLevel coursePrice");
+
+    // Merge stats into course objects
+    let courseWithStats = courses.map((course) => {
+      const courseId = course._id.toString();
+      return {
+        ...course.toObject(),
+        totalPurchases: purchaseCountMap.get(courseId) || 0,
+        totalClicks: clickCountMap.get(courseId) || 0,
+        totalScore: scoreMap.get(courseId) || 0,
+      };
+    });
+
+    // Sort final response by totalPurchases descending
+    courseWithStats.sort((a, b) => b.totalPurchases - a.totalPurchases);
+
+    return res.status(200).json({
+      message: "Recommended courses based on highest purchases",
+      recommendedCourses: courseWithStats,
+    });
+  } catch (err) {
+    console.error("Error in recommendCollaborativeCourses:", err);
+    res.status(500).json({ error: "Server error" });
+  }
 };
 
-const courseLevelScore = {
-  Beginner: 0,
-  Medium: 1,
-  Advance: 2,
-};
+
 
 export const recommendCourses = async (req, res) => {
   try {
@@ -26,103 +225,117 @@ export const recommendCourses = async (req, res) => {
     const user = await User.findById(userId).lean();
     if (!user) return res.status(404).json({ message: "User not found" });
 
-    const userSkills = (user.skills || []).map(normalize);
-    const userInterests = (user.interests || []).map(normalize);
-    const userPreferredRoles = (user.preferredRoles || []).map(normalize);
-    const userExperience = user.experienceLevel?.toLowerCase() || "beginner";
-    const userEducationLevel = user.educationLevel?.toLowerCase();
-    const enrolledIds = user.enrolledCourses?.map((id) => id.toString()) || [];
+    const normalize = (str) => (str || "").toLowerCase().trim();
 
-    // Map user experience to course level exactly
-    const levelMapping = {
-      beginner: "Beginner",
-      intermediate: "Medium",
-      advanced: "Advance",
+    // Normalize user data
+    const userSkills = (user.skills || []).map(normalize).filter(Boolean);
+    const userEducationLevel = normalize(user.educationLevel);
+    const enrolledIds = (user.enrolledCourses || []).map((id) => id.toString());
+
+    // Education level synonyms
+    const educationSynonyms = {
+      "bachelor's degree": ["bachelor", "bachelor’s degree", "undergraduate"],
+      "master's degree": ["master", "master’s degree", "graduate"],
+      "doctorate degree": ["doctorate", "phd", "doctoral"],
+      "less than high school diploma": ["less than high school", "no diploma"],
+      "high school diploma": ["high school", "secondary education"],
+      "some college": ["some college", "partial college"],
+      "associate degree": ["associate", "associate degree"],
+      "professional school degree": ["professional degree", "professional school"],
     };
-    const matchedLevel = levelMapping[userExperience] || "Beginner";
 
-    // Get all courses not enrolled and published
+    // Get all available published, not enrolled courses
     const allCourses = await Course.find({
       isPublished: true,
       _id: { $nin: enrolledIds },
     }).lean();
 
-    // Filter courses with exact level + skill relevance (dynamic)
-    const filteredCourses = allCourses.filter((course) => {
-      const title = course.courseTitle?.toLowerCase() || "";
-      const subTitle = course.subTitle?.toLowerCase() || "";
-      const tags = (course.tags || []).map(normalize);
-      const level = course.courseLevel;
+    // Log for debugging
+    console.log("User Skills:", userSkills);
+    console.log("User Education Level:", userEducationLevel);
+    console.log("Available Courses:", allCourses.length);
 
-      // Check if any user skill matches course title, subtitle, or tags
-      const skillMatch = userSkills.some(
-        (skill) =>
-          title.includes(skill) || subTitle.includes(skill) || tags.includes(skill)
-      );
+    // Score all courses
+    const scoredCourses = allCourses
+      .map((course) => {
+        const title = normalize(course.courseTitle || "");
+        const subTitle = normalize(course.subTitle || "");
+        const tags = (course.tags || []).map(normalize).filter(Boolean);
 
-      return level === matchedLevel && skillMatch;
-    });
+        // Log course details for debugging
+        console.log(`Course: ${course.courseTitle}, Tags: ${tags}`);
 
-    // Scoring function (same logic as before)
-    const calculateScore = (course) => {
-      let score = 0;
+        // Enhanced skill matching with synonyms
+        const skillSynonyms = {
+          javascript: ["javascript", "js", "node.js", "react", "angular", "vue"],
+          python: ["python", "py", "django", "flask"],
+          android: ["android", "mobile development", "kotlin", "flutter"],
+        };
 
-      const title = course.courseTitle?.toLowerCase() || "";
-      const subTitle = course.subTitle?.toLowerCase() || "";
-      const tags = (course.tags || []).map(normalize);
-      const courseLevel = courseLevelScore[course.courseLevel] ?? 1;
-      const userExpScore = experienceLevelScore[userExperience] ?? 0;
+        const skillMatches = userSkills.reduce((count, skill) => {
+          const synonyms = skillSynonyms[skill] || [skill];
+          return (
+            count +
+            synonyms.reduce((synCount, syn) => {
+              const regex = new RegExp(syn, "i");
+              return (
+                synCount +
+                (regex.test(title) || regex.test(subTitle) || tags.some((tag) => regex.test(tag))
+                  ? 1
+                  : 0)
+              );
+            }, 0)
+          );
+        }, 0);
+        const skillScore = userSkills.length ? skillMatches / userSkills.length : 0.1; // Fallback score
 
-      // Skills
-      const skillMatches = userSkills.filter(
-        (skill) =>
-          title.includes(skill) || subTitle.includes(skill) || tags.includes(skill)
-      ).length;
-      const skillScore = skillMatches / (userSkills.length || 1);
-      score += skillScore * 0.4;
+        // Education bonus
+        const educationTerms = educationSynonyms[userEducationLevel] || [userEducationLevel];
+        const educationBonus = educationTerms.some((term) =>
+          new RegExp(term, "i").test(title) ||
+          new RegExp(term, "i").test(subTitle) ||
+          tags.some((tag) => new RegExp(term, "i").test(tag))
+        )
+          ? 0.2 // Bonus for education match
+          : 0;
 
-      // Interests
-      const interestMatches = userInterests.filter(
-        (interest) =>
-          title.includes(interest) || subTitle.includes(interest) || tags.includes(interest)
-      ).length;
-      const interestScore = interestMatches / (userInterests.length || 1);
-      score += interestScore * 0.2;
+        // Adjusted weights
+        const totalScore =
+          skillScore * 0.8 + // Prioritize skills
+          educationBonus +   // Education as a bonus
+          0.1;               // Base score to ensure some courses pass
 
-      // Experience match
-      const levelDiff = Math.abs(userExpScore - courseLevel);
-      const levelScore = 1 - levelDiff / 2;
-      score += levelScore * 0.15;
+        console.log(
+          `Course: ${course.courseTitle}, SkillScore: ${skillScore}, EducationBonus: ${educationBonus}, TotalScore: ${totalScore}`
+        );
 
-      // Preferred roles
-      const roleMatches = userPreferredRoles.filter(
-        (role) => title.includes(role) || subTitle.includes(role)
-      ).length;
-      const roleScore = roleMatches / (userPreferredRoles.length || 1);
-      score += roleScore * 0.15;
-
-      // Education level boost
-      if (
-        userEducationLevel &&
-        (title.includes("bachelor") ||
-          subTitle.includes("bachelor") ||
-          tags.includes("bachelor"))
-      ) {
-        score += 0.1;
-      }
-
-      return score;
-    };
-
-    // Final scored recommendations
-    const scoredCourses = filteredCourses
-      .map((course) => ({
-        ...course,
-        score: calculateScore(course),
-      }))
-      .filter((course) => course.score >= 0.5)
+        return {
+          ...course,
+          score: totalScore,
+        };
+      })
+      .filter((course) => course.score >= 0.2) // Keep threshold
       .sort((a, b) => b.score - a.score)
       .slice(0, 10);
+
+    // Fallback: If no courses match, return top beginner courses
+    if (scoredCourses.length === 0) {
+      console.log("No courses matched, returning top beginner courses");
+      const fallbackCourses = await Course.find({
+        isPublished: true,
+        _id: { $nin: enrolledIds },
+        courseLevel: "Beginner",
+      })
+        .lean()
+        .limit(5);
+      return res.status(200).json({
+        success: true,
+        recommendedCourses: fallbackCourses.map((course) => ({ ...course, score: 0.2 })),
+      });
+    }
+
+    // Log final recommended courses
+    console.log("Recommended Courses:", scoredCourses.map((c) => ({ title: c.courseTitle, score: c.score })));
 
     return res.status(200).json({
       success: true,
@@ -131,81 +344,5 @@ export const recommendCourses = async (req, res) => {
   } catch (error) {
     console.error("Recommendation Error:", error);
     return res.status(500).json({ message: "Failed to get recommendations" });
-  }
-};
-
-
-
-
-
-// Binary vector of courses a user has purchased
-const getUserCourseVector = async (userId, allCourses) => {
-  const purchases = await CoursePurchase.find({
-    userId,
-    status: "completed",
-  }).select("courseId");
-
-  const purchasedIds = purchases.map(p => p.courseId.toString());
-
-  return allCourses.map(course =>
-    purchasedIds.includes(course._id.toString()) ? 1 : 0
-  );
-};
-
-export const recommendCollaborativeCourses = async (req, res) => {
-  try {
-    const currentUserId = req.id; // injected from token middleware
-
-    const users = await User.find().select("_id");
-    const allCourses = await Course.find().select("_id courseTitle");
-
-    const userVectors = await Promise.all(
-      users.map(async user => ({
-        userId: user._id.toString(),
-        vector: await getUserCourseVector(user._id, allCourses),
-      }))
-    );
-
-    const currentUserVector = userVectors.find(
-      u => u.userId === currentUserId
-    )?.vector;
-
-    if (!currentUserVector) {
-      return res
-        .status(404)
-        .json({ message: "No course data available for current user." });
-    }
-
-    const similarities = userVectors
-      .filter(u => u.userId !== currentUserId)
-      .map(u => ({
-        userId: u.userId,
-        similarity: cosineSimilarity(currentUserVector, u.vector),
-        vector: u.vector,
-      }))
-      .sort((a, b) => b.similarity - a.similarity);
-
-    const topUsers = similarities.slice(0, 3);
-
-    const recommendedIndices = new Set();
-    topUsers.forEach(({ vector }) => {
-      vector.forEach((val, i) => {
-        if (val === 1 && currentUserVector[i] === 0) {
-          recommendedIndices.add(i);
-        }
-      });
-    });
-
-    const recommendedCourses = Array.from(recommendedIndices).map(
-      i => allCourses[i]
-    );
-
-    res.status(200).json({
-      message: "Recommended courses based on collaborative filtering",
-      recommendedCourses,
-    });
-  } catch (err) {
-    console.error("Error in recommendation:", err);
-    res.status(500).json({ error: "Server error in recommendation" });
   }
 };
