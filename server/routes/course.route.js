@@ -6,7 +6,7 @@ import { recommendCollaborativeCourses, recommendCourses } from "../controllers/
 import { getTrendingCourses } from "../controllers/trending.course.controller.js";
 const router = express.Router();
 router.route("/recommend").get(isAuthenticated, recommendCourses);
-router.route("/collaborative").get(isAuthenticated,recommendCollaborativeCourses)
+router.route("/collaborative").get(recommendCollaborativeCourses)
 router.route("/trending").get(getTrendingCourses)
 router.route("/").post(isAuthenticated,createCourse);
 router.route("/search").get(isAuthenticated, searchCourse);
