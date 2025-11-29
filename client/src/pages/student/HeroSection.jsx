@@ -1,4 +1,3 @@
-
 // import { Button } from "@/components/ui/button";
 // import { Input } from "@/components/ui/input";
 // import { motion } from "framer-motion";
@@ -814,9 +813,6 @@
 
 // export default HeroSection;
 
-
-
-
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { motion, AnimatePresence } from "framer-motion";
@@ -831,14 +827,22 @@ import {
   DialogDescription,
   DialogFooter,
 } from "@/components/ui/dialog";
-import { Send, MessageSquare, X, Bot, User, BookOpen, ExternalLink } from "lucide-react";
+import {
+  Send,
+  MessageSquare,
+  X,
+  Bot,
+  User,
+  BookOpen,
+  ExternalLink,
+} from "lucide-react";
 import { toast } from "sonner";
 
 // Component to parse and render message content with course links
 const MessageContent = ({ text, sender, navigate }) => {
   // Regex to detect course links in format [Course Name](url)
   const linkRegex = /\[([^\]]+)\]\((http[^\)]+)\)/g;
-  
+
   const parts = [];
   let lastIndex = 0;
   let match;
@@ -847,35 +851,33 @@ const MessageContent = ({ text, sender, navigate }) => {
     // Add text before the link
     if (match.index > lastIndex) {
       parts.push({
-        type: 'text',
-        content: text.substring(lastIndex, match.index)
+        type: "text",
+        content: text.substring(lastIndex, match.index),
       });
     }
-    
+
     // Add the link
     parts.push({
-      type: 'link',
+      type: "link",
       title: match[1],
-      url: match[2]
+      url: match[2],
     });
-    
+
     lastIndex = match.index + match[0].length;
   }
-  
+
   // Add remaining text
   if (lastIndex < text.length) {
     parts.push({
-      type: 'text',
-      content: text.substring(lastIndex)
+      type: "text",
+      content: text.substring(lastIndex),
     });
   }
 
   // If no links found, render plain text
   if (parts.length === 0) {
     return (
-      <p className="text-sm leading-relaxed whitespace-pre-wrap">
-        {text}
-      </p>
+      <p className="text-sm leading-relaxed whitespace-pre-wrap">{text}</p>
     );
   }
 
@@ -890,7 +892,7 @@ const MessageContent = ({ text, sender, navigate }) => {
   return (
     <div className="text-sm leading-relaxed space-y-2">
       {parts.map((part, index) => {
-        if (part.type === 'text') {
+        if (part.type === "text") {
           return (
             <p key={index} className="whitespace-pre-wrap">
               {part.content}
@@ -904,41 +906,51 @@ const MessageContent = ({ text, sender, navigate }) => {
               whileTap={{ scale: 0.98 }}
               onClick={() => handleCourseClick(part.url)}
               className={`flex items-center gap-2 p-3 rounded-lg cursor-pointer transition-all ${
-                sender === 'user' 
-                  ? 'bg-white/20 hover:bg-white/30' 
-                  : 'bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-900/20 dark:to-purple-900/20 hover:from-indigo-100 hover:to-purple-100 dark:hover:from-indigo-900/30 dark:hover:to-purple-900/30 border border-indigo-200 dark:border-indigo-800'
+                sender === "user"
+                  ? "bg-white/20 hover:bg-white/30"
+                  : "bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-900/20 dark:to-purple-900/20 hover:from-indigo-100 hover:to-purple-100 dark:hover:from-indigo-900/30 dark:hover:to-purple-900/30 border border-indigo-200 dark:border-indigo-800"
               }`}
             >
-              <div className={`p-2 rounded-lg ${
-                sender === 'user' 
-                  ? 'bg-white/30' 
-                  : 'bg-gradient-to-br from-indigo-500 to-purple-600'
-              }`}>
-                <BookOpen className={`w-4 h-4 ${
-                  sender === 'user' ? 'text-white' : 'text-white'
-                }`} />
+              <div
+                className={`p-2 rounded-lg ${
+                  sender === "user"
+                    ? "bg-white/30"
+                    : "bg-gradient-to-br from-indigo-500 to-purple-600"
+                }`}
+              >
+                <BookOpen
+                  className={`w-4 h-4 ${
+                    sender === "user" ? "text-white" : "text-white"
+                  }`}
+                />
               </div>
               <div className="flex-1">
-                <p className={`font-semibold text-sm ${
-                  sender === 'user' 
-                    ? 'text-white' 
-                    : 'text-indigo-700 dark:text-indigo-300'
-                }`}>
+                <p
+                  className={`font-semibold text-sm ${
+                    sender === "user"
+                      ? "text-white"
+                      : "text-indigo-700 dark:text-indigo-300"
+                  }`}
+                >
                   {part.title}
                 </p>
-                <p className={`text-xs ${
-                  sender === 'user' 
-                    ? 'text-white/80' 
-                    : 'text-gray-500 dark:text-gray-400'
-                }`}>
+                <p
+                  className={`text-xs ${
+                    sender === "user"
+                      ? "text-white/80"
+                      : "text-gray-500 dark:text-gray-400"
+                  }`}
+                >
                   Click to view course
                 </p>
               </div>
-              <ExternalLink className={`w-4 h-4 ${
-                sender === 'user' 
-                  ? 'text-white/60' 
-                  : 'text-indigo-400 dark:text-indigo-500'
-              }`} />
+              <ExternalLink
+                className={`w-4 h-4 ${
+                  sender === "user"
+                    ? "text-white/60"
+                    : "text-indigo-400 dark:text-indigo-500"
+                }`}
+              />
             </motion.div>
           );
         }
@@ -986,7 +998,8 @@ const HeroSection = () => {
 
   useEffect(() => {
     if (chatContainerRef.current) {
-      chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
+      chatContainerRef.current.scrollTop =
+        chatContainerRef.current.scrollHeight;
     }
   }, [chatMessages]);
 
@@ -1056,7 +1069,9 @@ const HeroSection = () => {
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto mb-4"></div>
-          <p className="text-gray-600 dark:text-gray-400">Loading trending courses...</p>
+          <p className="text-gray-600 dark:text-gray-400">
+            Loading trending courses...
+          </p>
         </div>
       </div>
     );
@@ -1179,7 +1194,7 @@ const HeroSection = () => {
                     </p>
                     <div className="flex justify-between items-center">
                       <span className="text-indigo-600 dark:text-indigo-400 font-bold text-lg">
-                        ₹{course.coursePrice}
+                        Rs{course.coursePrice}
                       </span>
                       <span className="text-orange-500 text-sm font-medium">
                         🔥 {course.purchaseCount} bought
@@ -1339,7 +1354,11 @@ const HeroSection = () => {
                         : "bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200 rounded-tl-none border border-gray-200 dark:border-gray-700"
                     }`}
                   >
-                    <MessageContent text={message.text} sender={message.sender} navigate={navigate} />
+                    <MessageContent
+                      text={message.text}
+                      sender={message.sender}
+                      navigate={navigate}
+                    />
                   </div>
                 </motion.div>
               ))}
