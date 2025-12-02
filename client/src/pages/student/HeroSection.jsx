@@ -1086,7 +1086,15 @@ const HeroSection = () => {
   return (
     <>
       {/* Hero Section */}
-      <div className="bg-gradient-to-br from-indigo-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 py-20">
+      {/* <div className="bg-gradient-to-br from-indigo-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 py-20">
+        <div className="absolute inset-0 z-0">
+          <img
+            src="https://images.unsplash.com/photo-1513258496099-48168024aec0?q=80&w=2070"
+            alt="Background"
+            className="w-full h-full object-cover"
+          />
+          <div className="absolute inset-0 bg-gradient-to-br from-indigo-900/80 via-purple-900/70 to-blue-900/80"></div>
+        </div>
         <div className="max-w-7xl mx-auto px-4 text-center">
           <motion.h1
             initial={{ opacity: 0, y: -20 }}
@@ -1140,10 +1148,78 @@ const HeroSection = () => {
             </Button>
           </motion.div>
         </div>
+      </div> */}
+
+      {/* Hero Section */}
+      <div className="relative py-20">
+        {/* Background Image */}
+        <div className="absolute inset-0 z-0">
+          <img
+            src="https://images.unsplash.com/photo-1513258496099-48168024aec0?q=80&w=2070"
+            alt="Background"
+            className="w-full h-full object-cover"
+          />
+          {/* Remove gradient overlay if you want only image */}
+          {/* <div className="absolute inset-0 bg-gradient-to-br from-indigo-900/80 via-purple-900/70 to-blue-900/80"></div> */}
+        </div>
+
+        <div className="relative max-w-7xl mx-auto px-4 text-center">
+          <motion.h1
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            className="text-5xl font-extrabold text-white mb-6"
+          >
+            Find the Best Courses for You
+          </motion.h1>
+          <motion.p
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.2, duration: 0.6 }}
+            className="text-xl text-gray-100 mb-10"
+          >
+            Discover, Learn, and Upskill with our wide range of courses
+          </motion.p>
+
+          <motion.form
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: 0.4, duration: 0.6 }}
+            onSubmit={searchHandler}
+            className="flex items-center max-w-2xl mx-auto bg-white rounded-full shadow-lg overflow-hidden mb-8"
+          >
+            <Input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search Courses"
+              className="flex-grow border-none focus-visible:ring-0 px-6 py-3 text-gray-900 placeholder-gray-400"
+            />
+            <Button
+              type="submit"
+              className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-8 py-3 rounded-full hover:from-indigo-700 hover:to-purple-700"
+            >
+              Search
+            </Button>
+          </motion.form>
+
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.6 }}
+          >
+            <Button
+              onClick={() => navigate(`/course/search?query`)}
+              className="bg-white text-blue-600 rounded-full hover:bg-gray-200"
+            >
+              Explore Courses
+            </Button>
+          </motion.div>
+        </div>
       </div>
 
       {/* Popular Categories */}
-      <div className="max-w-7xl mx-auto px-4 py-16">
+      {/* <div className="max-w-7xl mx-auto px-4 py-16">
         <h2 className="text-3xl font-bold text-center mb-10 text-gray-900 dark:text-white">
           Popular Categories
         </h2>
@@ -1159,7 +1235,7 @@ const HeroSection = () => {
             </motion.div>
           ))}
         </div>
-      </div>
+      </div> */}
 
       {/* Trending Courses */}
       <div className="bg-gray-50 dark:bg-gray-900 py-16">
