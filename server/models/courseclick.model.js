@@ -17,7 +17,7 @@ const courseClickSchema = new mongoose.Schema(
       default: Date.now,
     },
   },
-  { timestamps: true }
+  { timestamps: true } // adds createdAt & updatedAt automatically
 );
 
-export default mongoose.model("CourseClick", courseClickSchema);
+export const CourseClick = mongoose.model("CourseClick", courseClickSchema);
