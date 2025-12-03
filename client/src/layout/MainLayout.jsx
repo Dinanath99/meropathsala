@@ -1,6 +1,3 @@
-
-
-
 import React, { useEffect, useState } from "react";
 import { Outlet, useNavigate } from "react-router-dom";
 import Navbar from "@/components/Navbar";
@@ -21,12 +18,24 @@ import { useUpdateUserMutation } from "@/features/api/authApi";
 import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  Brain, Server, UserCog, BarChart3, Presentation,
-  PieChart, FileSearch, MonitorCheck, ClipboardList,
+  Brain,
+  Server,
+  UserCog,
+  BarChart3,
+  Presentation,
+  PieChart,
+  FileSearch,
+  MonitorCheck,
+  ClipboardList,
 } from "lucide-react";
 
 // Constants
-const goalsOptions = ["Start my career", "Change my career", "Grow in my current role", "Explore topics outside of work"];
+const goalsOptions = [
+  "Start my career",
+  "Change my career",
+  "Grow in my current role",
+  "Explore topics outside of work",
+];
 const rolesOptions = [
   { label: "Data Scientist", icon: Brain },
   { label: "IT Project Manager", icon: ClipboardList },
@@ -39,12 +48,25 @@ const rolesOptions = [
   { label: "Data Warehouse Developer", icon: MonitorCheck },
 ];
 const skillsOptions = [
-  "Data Science", "Machine Learning", "Python Programming", "SQL", "Data Analysis",
-  "Statistics", "Algorithms", "Data Visualization", "Deep Learning",
+  "Data Science",
+  "Machine Learning",
+  "Python Programming",
+  "SQL",
+  "Data Analysis",
+  "Statistics",
+  "Algorithms",
+  "Data Visualization",
+  "Deep Learning",
 ];
 const educationLevels = [
-  "Less than high school diploma", "High school diploma", "Some college", "Associate Degree",
-  "Bachelor's degree", "Master's degree", "Professional school degree", "Doctorate degree",
+  "Less than high school diploma",
+  "High school diploma",
+  "Some college",
+  "Associate Degree",
+  "Bachelor's degree",
+  "Master's degree",
+  "Professional school degree",
+  "Doctorate degree",
 ];
 const experienceLevels = ["beginner", "intermediate", "advanced"];
 
@@ -52,14 +74,14 @@ const experienceLevels = ["beginner", "intermediate", "advanced"];
 const stepVariants = {
   initial: { opacity: 0, y: 30 },
   animate: { opacity: 1, y: 0 },
-  exit: { opacity: 0, y: -30 }
+  exit: { opacity: 0, y: -30 },
 };
 const buttonVariants = {
   hover: { scale: 1.05, transition: { duration: 0.2 } },
-  tap: { scale: 0.95 }
+  tap: { scale: 0.95 },
 };
 const cardVariants = {
-  hover: { y: -5, transition: { duration: 0.2 } }
+  hover: { y: -5, transition: { duration: 0.2 } },
 };
 
 // Main Component
@@ -92,7 +114,9 @@ const MainLayout = () => {
   }, [user, isAuthenticated, navigate]);
 
   const toggleItem = (item, list, setter) => {
-    setter(list.includes(item) ? list.filter((i) => i !== item) : [...list, item]);
+    setter(
+      list.includes(item) ? list.filter((i) => i !== item) : [...list, item]
+    );
   };
 
   const handleNext = () => {
@@ -101,16 +125,20 @@ const MainLayout = () => {
         if (!goal) return toast.error("Please select a goal.");
         break;
       case 1:
-        if (!selectedRoles.length && !customRole.trim()) return toast.error("Select or enter a role.");
+        if (!selectedRoles.length && !customRole.trim())
+          return toast.error("Select or enter a role.");
         break;
       case 2:
-        if (!selectedSkills.length && !customSkill.trim()) return toast.error("Select or enter a skill.");
+        if (!selectedSkills.length && !customSkill.trim())
+          return toast.error("Select or enter a skill.");
         break;
       case 3:
-        if (!jobTitle.trim()) return toast.error("Please enter your job title.");
+        if (!jobTitle.trim())
+          return toast.error("Please enter your job title.");
         break;
       case 4:
-        if (!educationLevel || !experienceLevel) return toast.error("Please fill all fields.");
+        if (!educationLevel || !experienceLevel)
+          return toast.error("Please fill all fields.");
         break;
     }
     setStep((prev) => prev + 1);
@@ -119,9 +147,18 @@ const MainLayout = () => {
   const handlePrev = () => setStep((prev) => Math.max(prev - 1, 0));
 
   const handleSubmit = async () => {
-    const allRoles = [...selectedRoles, ...(customRole ? [customRole.trim()] : [])];
-    const allSkills = [...selectedSkills, ...(customSkill ? [customSkill.trim()] : [])];
-    const interestList = interests.split(",").map((i) => i.trim()).filter(Boolean);
+    const allRoles = [
+      ...selectedRoles,
+      ...(customRole ? [customRole.trim()] : []),
+    ];
+    const allSkills = [
+      ...selectedSkills,
+      ...(customSkill ? [customSkill.trim()] : []),
+    ];
+    const interestList = interests
+      .split(",")
+      .map((i) => i.trim())
+      .filter(Boolean);
 
     const payload = {
       goal,
@@ -140,7 +177,9 @@ const MainLayout = () => {
       navigate("/"); // Replace with your desired route
     } catch (err) {
       console.error("Update user error:", err); // Log for debugging
-      toast.error(err?.data?.message || "Failed to update profile. Please try again.");
+      toast.error(
+        err?.data?.message || "Failed to update profile. Please try again."
+      );
     }
   };
 
@@ -149,15 +188,15 @@ const MainLayout = () => {
       case 0:
         return (
           <>
-            <DialogTitle className="text-3xl font-bold text-gray-800">Welcome, {user?.name || "User"}!</DialogTitle>
-            <DialogDescription className="text-gray-500 text-lg mt-2">Choose a goal to tailor your journey.</DialogDescription>
+            <DialogTitle className="text-3xl font-bold text-gray-800">
+              Welcome, {user?.name || "User"}!
+            </DialogTitle>
+            <DialogDescription className="text-gray-500 text-lg mt-2">
+              Choose a goal to tailor your journey.
+            </DialogDescription>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-8">
               {goalsOptions.map((g) => (
-                <motion.div
-                  key={g}
-                  variants={cardVariants}
-                  whileHover="hover"
-                >
+                <motion.div key={g} variants={cardVariants} whileHover="hover">
                   <Button
                     onClick={() => setGoal(g)}
                     className={`w-full py-4 rounded-xl text-lg font-medium transition-all duration-300 shadow-md ${
@@ -179,8 +218,12 @@ const MainLayout = () => {
       case 1:
         return (
           <>
-            <DialogTitle className="text-3xl font-bold text-gray-800">Interested Roles</DialogTitle>
-            <DialogDescription className="text-gray-500 text-lg mt-2">Select or add roles that inspire you.</DialogDescription>
+            <DialogTitle className="text-3xl font-bold text-gray-800">
+              Interested Roles
+            </DialogTitle>
+            <DialogDescription className="text-gray-500 text-lg mt-2">
+              Select or add roles that inspire you.
+            </DialogDescription>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-10">
               {rolesOptions.map(({ label, icon: Icon }) => (
                 <motion.div
@@ -190,7 +233,9 @@ const MainLayout = () => {
                   className="h-32"
                 >
                   <Button
-                    onClick={() => toggleItem(label, selectedRoles, setSelectedRoles)}
+                    onClick={() =>
+                      toggleItem(label, selectedRoles, setSelectedRoles)
+                    }
                     className={`w-full h-full flex flex-col items-center justify-center rounded-2xl shadow-lg transition-all duration-300 p-6 ${
                       selectedRoles.includes(label)
                         ? "bg-gradient-to-br from-indigo-500 to-purple-600 text-white"
@@ -201,7 +246,9 @@ const MainLayout = () => {
                     whileTap="tap"
                   >
                     <Icon className="w-10 h-10 mb-3" />
-                    <span className="text-base font-semibold text-center">{label}</span>
+                    <span className="text-base font-semibold text-center">
+                      {label}
+                    </span>
                   </Button>
                 </motion.div>
               ))}
@@ -217,8 +264,12 @@ const MainLayout = () => {
       case 2:
         return (
           <>
-            <DialogTitle className="text-3xl font-bold text-gray-800">Skills</DialogTitle>
-            <DialogDescription className="text-gray-500 text-lg mt-2">Select or add skills you want to master.</DialogDescription>
+            <DialogTitle className="text-3xl font-bold text-gray-800">
+              Skills
+            </DialogTitle>
+            <DialogDescription className="text-gray-500 text-lg mt-2">
+              Select or add skills you want to master.
+            </DialogDescription>
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 mt-8">
               {skillsOptions.map((skill) => (
                 <motion.div
@@ -227,7 +278,9 @@ const MainLayout = () => {
                   whileHover="hover"
                 >
                   <Button
-                    onClick={() => toggleItem(skill, selectedSkills, setSelectedSkills)}
+                    onClick={() =>
+                      toggleItem(skill, selectedSkills, setSelectedSkills)
+                    }
                     className={`w-full py-3 rounded-xl text-sm font-medium shadow-md transition-all duration-300 ${
                       selectedSkills.includes(skill)
                         ? "bg-gradient-to-r from-blue-500 to-indigo-600 text-white"
@@ -253,8 +306,12 @@ const MainLayout = () => {
       case 3:
         return (
           <>
-            <DialogTitle className="text-3xl font-bold text-gray-800">Job Title</DialogTitle>
-            <DialogDescription className="text-gray-500 text-lg mt-2">Tell us about your current or most recent role.</DialogDescription>
+            <DialogTitle className="text-3xl font-bold text-gray-800">
+              Job Title
+            </DialogTitle>
+            <DialogDescription className="text-gray-500 text-lg mt-2">
+              Tell us about your current or most recent role.
+            </DialogDescription>
             <Input
               className="mt-6 text-black border-gray-200 focus:ring-2 focus:ring-indigo-500 rounded-lg py-3"
               placeholder="e.g. Software Engineer"
@@ -266,16 +323,18 @@ const MainLayout = () => {
       case 4:
         return (
           <>
-            <DialogTitle className="text-3xl font-bold text-gray-800">Education & Experience</DialogTitle>
-            <DialogDescription className="text-gray-500 text-lg mt-2">Share your education and experience level.</DialogDescription>
-            <Label className="mt-6 text-gray-700 font-semibold text-lg">Education</Label>
+            <DialogTitle className="text-3xl font-bold text-gray-800">
+              Education & Experience
+            </DialogTitle>
+            <DialogDescription className="text-gray-500 text-lg mt-2">
+              Share your education and experience level.
+            </DialogDescription>
+            <Label className="mt-6 text-gray-700 font-semibold text-lg">
+              Education
+            </Label>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-3">
               {educationLevels.map((ed) => (
-                <motion.div
-                  key={ed}
-                  variants={cardVariants}
-                  whileHover="hover"
-                >
+                <motion.div key={ed} variants={cardVariants} whileHover="hover">
                   <Button
                     onClick={() => setEducationLevel(ed)}
                     className={`w-full py-3 rounded-xl text-sm font-medium shadow-md transition-all duration-300 ${
@@ -292,14 +351,12 @@ const MainLayout = () => {
                 </motion.div>
               ))}
             </div>
-            <Label className="mt-6 block text-gray-700 font-semibold text-lg">Experience</Label>
+            <Label className="mt-6 block text-gray-700 font-semibold text-lg">
+              Experience
+            </Label>
             <div className="flex gap-4 mt-3">
               {experienceLevels.map((ex) => (
-                <motion.div
-                  key={ex}
-                  variants={cardVariants}
-                  whileHover="hover"
-                >
+                <motion.div key={ex} variants={cardVariants} whileHover="hover">
                   <Button
                     onClick={() => setExperienceLevel(ex)}
                     className={`w-full py-3 rounded-xl capitalize text-sm font-medium shadow-md transition-all duration-300 ${
@@ -387,3 +444,4 @@ const MainLayout = () => {
 };
 
 export default MainLayout;
+

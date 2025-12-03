@@ -1,5 +1,3 @@
-
-
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import "./App.css";
 
@@ -27,6 +25,7 @@ import EditLecture from "./pages/admin/lecture/EditLecture";
 
 // Layout
 import MainLayout from "./layout/MainLayout";
+import ResetPassword from "./pages/ResetPassword";
 
 // Route Guards
 import {
@@ -56,7 +55,6 @@ const appRouter = createBrowserRouter([
             <Footer />
           </>
         ),
-
       },
       {
         path: "about",
@@ -69,6 +67,10 @@ const appRouter = createBrowserRouter([
             <Login />
           </AuthenticatedUser>
         ),
+      },
+      {
+        path: "reset-password/:token", // ✅ Reset Password route
+        element: <ResetPassword />,
       },
       {
         path: "dashboard", // ✅ Student Dashboard Route
