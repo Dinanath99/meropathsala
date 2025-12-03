@@ -21,7 +21,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useLoginUserMutation, useRegisterUserMutation } from "@/features/api/authApi";
+import {
+  useLoginUserMutation,
+  useRegisterUserMutation,
+} from "@/features/api/authApi";
 
 const Login = () => {
   const [signupInput, setSignupInput] = useState({
@@ -43,12 +46,22 @@ const Login = () => {
 
   const [
     registerUser,
-    { data: registerData, error: registerError, isLoading: registerIsLoading, isSuccess: registerIsSuccess },
+    {
+      data: registerData,
+      error: registerError,
+      isLoading: registerIsLoading,
+      isSuccess: registerIsSuccess,
+    },
   ] = useRegisterUserMutation();
 
   const [
     loginUser,
-    { data: loginData, error: loginError, isLoading: loginIsLoading, isSuccess: loginIsSuccess },
+    {
+      data: loginData,
+      error: loginError,
+      isLoading: loginIsLoading,
+      isSuccess: loginIsSuccess,
+    },
   ] = useLoginUserMutation();
 
   const navigate = useNavigate();
@@ -65,7 +78,10 @@ const Login = () => {
   const handleRegistration = async (type) => {
     const inputData = type === "signup" ? signupInput : loginInput;
 
-    if (!inputData.email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(inputData.email)) {
+    if (
+      !inputData.email ||
+      !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(inputData.email)
+    ) {
       toast.error("Invalid email");
       return;
     }
@@ -138,7 +154,15 @@ const Login = () => {
     if (loginError) {
       toast.error(loginError?.data?.message || "Login failed");
     }
-  }, [registerIsSuccess, registerData, registerError, loginIsSuccess, loginData, loginError, navigate]);
+  }, [
+    registerIsSuccess,
+    registerData,
+    registerError,
+    loginIsSuccess,
+    loginData,
+    loginError,
+    navigate,
+  ]);
 
   return (
     <div className="flex items-center w-full justify-center mt-20">
@@ -154,7 +178,9 @@ const Login = () => {
           <Card>
             <CardHeader>
               <CardTitle>Signup</CardTitle>
-              <CardDescription>Create a new account and click signup when you're done.</CardDescription>
+              <CardDescription>
+                Create a new account and click signup when you're done.
+              </CardDescription>
             </CardHeader>
             <CardContent className="space-y-2">
               <div className="space-y-1">
@@ -193,7 +219,11 @@ const Login = () => {
                   onClick={() => setShowSignupPassword((prev) => !prev)}
                   className="absolute right-3 top-9 cursor-pointer text-gray-500"
                 >
-                  {showSignupPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                  {showSignupPassword ? (
+                    <EyeOff size={18} />
+                  ) : (
+                    <Eye size={18} />
+                  )}
                 </span>
               </div>
               <div className="space-y-1">
@@ -215,12 +245,18 @@ const Login = () => {
               </div>
             </CardContent>
             <CardFooter>
-              <Button disabled={registerIsLoading} onClick={() => handleRegistration("signup")}>
+              <Button
+                disabled={registerIsLoading}
+                onClick={() => handleRegistration("signup")}
+              >
                 {registerIsLoading ? (
                   <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Please wait
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Please
+                    wait
                   </>
-                ) : "Signup"}
+                ) : (
+                  "Signup"
+                )}
               </Button>
             </CardFooter>
           </Card>
@@ -231,7 +267,9 @@ const Login = () => {
           <Card>
             <CardHeader>
               <CardTitle>Login</CardTitle>
-              <CardDescription>Enter your credentials to login.</CardDescription>
+              <CardDescription>
+                Enter your credentials to login.
+              </CardDescription>
             </CardHeader>
             <CardContent className="space-y-2">
               <div className="space-y-1">
@@ -281,12 +319,18 @@ const Login = () => {
               </div>
             </CardContent>
             <CardFooter>
-              <Button disabled={loginIsLoading} onClick={() => handleRegistration("login")}>
+              <Button
+                disabled={loginIsLoading}
+                onClick={() => handleRegistration("login")}
+              >
                 {loginIsLoading ? (
                   <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Please wait
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Please
+                    wait
                   </>
-                ) : "Login"}
+                ) : (
+                  "Login"
+                )}
               </Button>
             </CardFooter>
           </Card>
@@ -323,6 +367,3 @@ const Login = () => {
 };
 
 export default Login;
-
-
-
