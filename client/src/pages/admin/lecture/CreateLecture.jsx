@@ -49,10 +49,7 @@ const CreateLecture = () => {
         <h1 className="font-bold text-xl">
           Let's add lectures, add some basic details for your new lecture
         </h1>
-        <p className="text-sm">
-          Lorem, ipsum dolor sit amet consectetur adipisicing elit. Possimus,
-          laborum!
-        </p>
+        <p className="text-sm"></p>
       </div>
       <div className="space-y-4">
         <div>
