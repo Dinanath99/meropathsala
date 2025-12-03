@@ -1,5 +1,3 @@
-
-
 import { Course } from "../models/course.model.js";
 import { User } from "../models/user.model.js";
 
@@ -8,8 +6,6 @@ import { CoursePurchase } from "../models/coursePurchase.model.js";
 import cosineSimilarity from "compute-cosine-similarity";
 
 const normalize = (str) => str.trim().toLowerCase();
-
-
 
 // export const recommendCourses = async (req, res) => {
 //   try {
@@ -125,7 +121,6 @@ const normalize = (str) => str.trim().toLowerCase();
 //   }
 // };
 
-
 export const recommendCollaborativeCourses = async (req, res) => {
   try {
     const currentUserId = req.id;
@@ -147,7 +142,10 @@ export const recommendCollaborativeCourses = async (req, res) => {
     allPurchases.forEach((p) => {
       const courseId = p.courseId.toString();
       if (!userPurchasedSet.has(courseId)) {
-        purchaseCountMap.set(courseId, (purchaseCountMap.get(courseId) || 0) + 1);
+        purchaseCountMap.set(
+          courseId,
+          (purchaseCountMap.get(courseId) || 0) + 1
+        );
       }
     });
 
@@ -217,8 +215,6 @@ export const recommendCollaborativeCourses = async (req, res) => {
   }
 };
 
-
-
 export const recommendCourses = async (req, res) => {
   try {
     const userId = req.id;
@@ -241,7 +237,10 @@ export const recommendCourses = async (req, res) => {
       "high school diploma": ["high school", "secondary education"],
       "some college": ["some college", "partial college"],
       "associate degree": ["associate", "associate degree"],
-      "professional school degree": ["professional degree", "professional school"],
+      "professional school degree": [
+        "professional degree",
+        "professional school",
+      ],
     };
 
     // Get all available published, not enrolled courses
@@ -267,9 +266,29 @@ export const recommendCourses = async (req, res) => {
 
         // Enhanced skill matching with synonyms
         const skillSynonyms = {
-          javascript: ["javascript", "js", "node.js", "react", "angular", "vue"],
+          javascript: [
+            "javascript",
+            "js",
+            "node.js",
+            "react",
+            "next.js",
+
+            "angular",
+            "vue",
+          ],
           python: ["python", "py", "django", "flask"],
           android: ["android", "mobile development", "kotlin", "flutter"],
+          java: [
+            "java",
+            "core java",
+            "advanced java",
+            "spring",
+            "spring boot",
+            "spring mvc",
+            "hibernate",
+            "jakarta ee",
+            "microservices",
+          ],
         };
 
         const skillMatches = userSkills.reduce((count, skill) => {
@@ -280,21 +299,28 @@ export const recommendCourses = async (req, res) => {
               const regex = new RegExp(syn, "i");
               return (
                 synCount +
-                (regex.test(title) || regex.test(subTitle) || tags.some((tag) => regex.test(tag))
+                (regex.test(title) ||
+                regex.test(subTitle) ||
+                tags.some((tag) => regex.test(tag))
                   ? 1
                   : 0)
               );
             }, 0)
           );
         }, 0);
-        const skillScore = userSkills.length ? skillMatches / userSkills.length : 0.1; // Fallback score
+        const skillScore = userSkills.length
+          ? skillMatches / userSkills.length
+          : 0.1; // Fallback score
 
         // Education bonus
-        const educationTerms = educationSynonyms[userEducationLevel] || [userEducationLevel];
-        const educationBonus = educationTerms.some((term) =>
-          new RegExp(term, "i").test(title) ||
-          new RegExp(term, "i").test(subTitle) ||
-          tags.some((tag) => new RegExp(term, "i").test(tag))
+        const educationTerms = educationSynonyms[userEducationLevel] || [
+          userEducationLevel,
+        ];
+        const educationBonus = educationTerms.some(
+          (term) =>
+            new RegExp(term, "i").test(title) ||
+            new RegExp(term, "i").test(subTitle) ||
+            tags.some((tag) => new RegExp(term, "i").test(tag))
         )
           ? 0.2 // Bonus for education match
           : 0;
@@ -302,8 +328,8 @@ export const recommendCourses = async (req, res) => {
         // Adjusted weights
         const totalScore =
           skillScore * 0.8 + // Prioritize skills
-          educationBonus +   // Education as a bonus
-          0.1;               // Base score to ensure some courses pass
+          educationBonus + // Education as a bonus
+          0.1; // Base score to ensure some courses pass
 
         console.log(
           `Course: ${course.courseTitle}, SkillScore: ${skillScore}, EducationBonus: ${educationBonus}, TotalScore: ${totalScore}`
@@ -330,12 +356,18 @@ export const recommendCourses = async (req, res) => {
         .limit(5);
       return res.status(200).json({
         success: true,
-        recommendedCourses: fallbackCourses.map((course) => ({ ...course, score: 0.2 })),
+        recommendedCourses: fallbackCourses.map((course) => ({
+          ...course,
+          score: 0.2,
+        })),
       });
     }
 
     // Log final recommended courses
-    console.log("Recommended Courses:", scoredCourses.map((c) => ({ title: c.courseTitle, score: c.score })));
+    console.log(
+      "Recommended Courses:",
+      scoredCourses.map((c) => ({ title: c.courseTitle, score: c.score }))
+    );
 
     return res.status(200).json({
       success: true,
